@@ -13,9 +13,9 @@ jobs:
         id: check_tag
         if: github.event_name != 'push'
         run: |
-          tag1=$(curl -s https://api.github.com/repos/MatsuriDayo/nekoray/tags | jq -r '.[0].name')
+          tag1=$(curl -s https://api.github.com/repos/kafeixiang/nekoray-t/tags | jq -r '.[0].name')
           tag2=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/tags | jq -r '.[0].name')
-          echo "Latest tag on MatsuriDayo/nekoray: $tag1"
+          echo "Latest tag on kafeixiang/nekoray-t: $tag1"
           echo "Latest tag on this repository: $tag2"
           if [[ "$tag1" == "$tag2" ]]; then
             echo "Latest tags match! Aborting workflow."
@@ -102,7 +102,7 @@ jobs:
       - name: Check latest tag
         id: check_tag
         run: |
-          latest_tag=$(git ls-remote --tags --sort=-v:refname https://github.com/MatsuriDayo/nekoray.git | head -n1 | awk '{print $2}' | sed 's/refs\/tags\///')
+          latest_tag=$(git ls-remote --tags --sort=-v:refname https://github.com/kafeixiang/nekoray.git | head -n1 | awk '{print $2}' | sed 's/refs\/tags\///')
           echo "Latest tag is ${latest_tag}"
           echo "latest_tag=${latest_tag}" >> $GITHUB_ENV
 
