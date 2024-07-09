@@ -76,12 +76,12 @@ namespace Qv2ray {
             QTextCharFormat tcpudpFormat;
             QTextCharFormat dateFormat;
             QTextCharFormat acceptedFormat;
-            QTextCharFormat rejectedFormat;
             QTextCharFormat failedFormat;
             QTextCharFormat warningFormat;
             QTextCharFormat warningFormat2;
             QTextCharFormat infoFormat;
             QTextCharFormat debugFormat;
+            QTextCharFormat errorFormat;
             QTextCharFormat timeFormat;
             QTextCharFormat ipHostFormat;
             QTextCharFormat v2rayComponentFormat;

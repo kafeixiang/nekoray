@@ -17,7 +17,7 @@ namespace Qv2ray::ui {
             warningFormat.setForeground(QColor(255, 160, 15));
             warningFormat2.setForeground(Qt::cyan);
         } else {
-            ipHostFormat.setForeground(QColor(0, 52, 130));
+            ipHostFormat.setForeground(QColor(30, 144, 255));
             tcpudpFormat.setForeground(QColor(0, 52, 130));
             warningFormat.setBackground(QColor(255, 160, 15));
             warningFormat.setForeground(Qt::white);
@@ -28,16 +28,8 @@ namespace Qv2ray::ui {
         acceptedFormat.setForeground(darkGreenColor);
         acceptedFormat.setFontItalic(true);
         acceptedFormat.setFontWeight(QFont::Bold);
-        rule.pattern = QRegularExpression("\\saccepted\\s");
+        rule.pattern = QRegularExpression("(?<![A-Za-z])accepted(?![A-Za-z])");
         rule.format = acceptedFormat;
-        highlightingRules.append(rule);
-        //
-        rejectedFormat.setFontWeight(QFont::Bold);
-        rejectedFormat.setBackground(Qt::red);
-        rejectedFormat.setForeground(Qt::white);
-        rejectedFormat.setFontWeight(QFont::Bold);
-        rule.pattern = QRegularExpression("\\srejected\\s" TO_EOL);
-        rule.format = rejectedFormat;
         highlightingRules.append(rule);
         //
         dateFormat.setForeground(darkMode ? Qt::cyan : Qt::darkCyan);
@@ -51,23 +43,24 @@ namespace Qv2ray::ui {
         highlightingRules.append(rule);
         //
         debugFormat.setForeground(Qt::darkGray);
-        rule.pattern = QRegularExpression("\\[D[Ee][Bb][Uu].*?\\]");
+        rule.pattern = QRegularExpression("(?<![A-Za-z])DEBUG(?![A-Za-z])");
         rule.format = debugFormat;
         highlightingRules.append(rule);
         //
-        infoFormat.setForeground(darkMode ? Qt::lightGray : Qt::darkCyan);
-        rule.pattern = QRegularExpression("\\[I[Nn][Ff][Oo].*?\\]");
+        infoFormat.setForeground(QColorConstants::Svg::royalblue);
+        rule.pattern = QRegularExpression("(?<![A-Za-z])INFO(?![A-Za-z])");
         rule.format = infoFormat;
         highlightingRules.append(rule);
         //
         warningFormat.setFontWeight(QFont::Bold);
         warningFormat2.setFontWeight(QFont::Bold);
-        rule.pattern = QRegularExpression("\\[W[Aa][Rr][Nn].*?\\]");
+        rule.pattern = QRegularExpression("(?<![A-Za-z])WARN(?![A-Za-z])");
         rule.format = warningFormat2;
         highlightingRules.append(rule);
         //
-        rule.pattern = QRegularExpression("\\[E[Rr][Rr][Oo].*?\\]");
-        rule.format = rejectedFormat;
+        errorFormat.setForeground(QColorConstants::Svg::crimson);
+        rule.pattern = QRegularExpression("(?<![A-Za-z])ERROR(?![A-Za-z])");
+        rule.format = errorFormat;
         highlightingRules.append(rule);
 
         //
@@ -80,6 +73,14 @@ namespace Qv2ray::ui {
         failedFormat.setBackground(Qt::red);
         failedFormat.setForeground(Qt::white);
         rule.pattern = QRegularExpression("failed");
+        rule.format = failedFormat;
+        highlightingRules.append(rule);
+        //
+        rule.pattern = QRegularExpression("error");
+        rule.format = failedFormat;
+        highlightingRules.append(rule);
+        //
+        rule.pattern = QRegularExpression("rejected");
         rule.format = failedFormat;
         highlightingRules.append(rule);
         //
