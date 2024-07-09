@@ -82,6 +82,7 @@ namespace Qv2ray {
             QTextCharFormat warningFormat2;
             QTextCharFormat infoFormat;
             QTextCharFormat debugFormat;
+            QTextCharFormat errorFormat;
             QTextCharFormat timeFormat;
             QTextCharFormat ipHostFormat;
             QTextCharFormat v2rayComponentFormat;
