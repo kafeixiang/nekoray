@@ -1670,6 +1670,13 @@ void MainWindow::on_tabWidget_customContextMenuRequested(const QPoint &p) {
             QMessageBox::StandardButton::Yes) {
             NekoGui::profileManager->DeleteGroup(id);
             MW_dialog_message(Dialog_DialogManageGroups, "refresh-1");
+
+            // 设置新的当前组索引
+            auto newGroupIndex = clickedIndex > 0 ? clickedIndex - 1 : 0;
+            ui->tabWidget->setCurrentIndex(newGroupIndex);
+            // 显示新的当前组
+            auto newGroupId = NekoGui::profileManager->groupsTabOrder[newGroupIndex];
+            show_group(newGroupId);
         }
     });
     connect(editAction, &QAction::triggered, this, [=]{
@@ -1687,7 +1694,7 @@ void MainWindow::on_tabWidget_customContextMenuRequested(const QPoint &p) {
     });
     menu->addAction(addAction);
     menu->addAction(editAction);
-    if (NekoGui::profileManager->groups.size() > 1) menu->addAction(deleteAction);
+    if (clickedIndex > 0) menu->addAction(deleteAction);
     menu->exec(ui->tabWidget->tabBar()->mapToGlobal(p));
     return;
 }
