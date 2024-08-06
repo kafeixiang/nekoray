@@ -194,6 +194,13 @@ namespace NekoGui_sub {
             ok = ent->QUICBean()->TryParseLink(str);
         }
 
+        // Wireguard
+        if (str.startsWith("wg://")) {
+            needFix = false;
+            ent = NekoGui::ProfileManager::NewProxyEntity("wireguard");
+            ok = ent->WireguardBean()->TryParseLink(str);
+        }
+
         else return;
 
         if (!ok) {
