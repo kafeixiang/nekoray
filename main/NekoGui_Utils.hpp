@@ -86,6 +86,10 @@ QString QJsonObject2QString(const QJsonObject &jsonObject, bool compact);
 template<typename T>
 QJsonArray QList2QJsonArray(const QList<T> &list);
 
+QJsonArray QListInt2QJsonArray(const QList<int> &list);
+
+QJsonArray QListStr2QJsonArray(const QList<QString> &list);
+
 QList<int> QJsonArray2QListInt(const QJsonArray &arr);
 
 #define QJSONARRAY_ADD(arr, add) \

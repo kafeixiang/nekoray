@@ -315,6 +315,14 @@ namespace NekoGui {
                 outbound = coreR.outbound;
             }
 
+            if (ent->type == "wireguard") {
+                if (ent->WireguardBean()->useSystemInterface && !NekoGui::IsAdmin()) {
+                    MW_dialog_message("configBuilder" ,"NeedAdmin");
+                    status->result->error = "using wireguard system interface requires elevated permissions";
+                    return {};
+                }
+            }
+
             // outbound misc
             outbound["tag"] = tagOut;
             ent->traffic_data->id = ent->id;
