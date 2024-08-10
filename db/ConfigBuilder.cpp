@@ -427,8 +427,7 @@ namespace NekoGui {
             inboundObj["stack"] = Preset::SingBox::VpnImplementation.value(dataStore->vpn_implementation);
             inboundObj["strict_route"] = dataStore->vpn_strict_route;
             inboundObj["gso"] = dataStore->enable_gso;
-            inboundObj["inet4_address"] = "172.19.0.1/28";
-            if (dataStore->vpn_ipv6) inboundObj["inet6_address"] = "fdfe:dcba:9876::1/126";
+            inboundObj["address"] = dataStore->vpn_ipv6 ? QJsonArray{"172.18.0.1/30", "fdfe:dcba:9876::1/126"} : QJsonArray{"172.18.0.1/30"};
             if (dataStore->routing->sniffing_mode != SniffingMode::DISABLE) {
                 inboundObj["sniff"] = true;
                 inboundObj["sniff_override_destination"] = dataStore->routing->sniffing_mode == SniffingMode::FOR_DESTINATION;
