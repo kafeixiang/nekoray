@@ -563,7 +563,10 @@ namespace NekoGui_sub {
         bool asURL = false;
         bool createNewGroup = false;
 
-        if (_sub_gid < 0 && (content.startsWith("http://") || content.startsWith("https://"))) {
+        QRegularExpression UrlPattern(R"(^(https?:\/\/)(?!.*:[^\/]*@)[\w.-]+(:\d{1,5})?(\/.*)?$)");
+        QRegularExpressionMatch UrlMatch = UrlPattern.match(content);
+
+        if (_sub_gid < 0 && UrlMatch.hasMatch()) {
             auto items = QStringList{
                 QObject::tr("As Subscription (add to this group)"),
                 QObject::tr("As Subscription (create new group)"),
