@@ -371,10 +371,6 @@ namespace NekoGui {
                 if (!server.isEmpty()) serverAddress = server;
             }
 
-            if (!IsIpAddress(serverAddress)) {
-                status->domainListDNSDirect += "full:" + serverAddress;
-            }
-
             status->outbounds += outbound;
             pastTag = tagOut;
             pastExternalStat = thisExternalStat;
@@ -553,19 +549,17 @@ namespace NekoGui {
         // Direct
         auto directDNSAddress = dataStore->routing->direct_dns;
         if (directDNSAddress == "localhost") directDNSAddress = BOX_UNDERLYING_DNS_EXPORT;
-        if (!status->forTest) {
-            QJsonObject directObj{
-                {"tag", "dns-direct"},
-                {"address_resolver", "dns-local"},
-                {"strategy", dataStore->routing->direct_dns_strategy},
-                {"address", directDNSAddress.replace("+local://", "://")},
-                {"detour", "direct"},
-            };
-            if (dataStore->routing->dns_final_out == "bypass") {
-                dnsServers.prepend(directObj);
-            } else {
-                dnsServers.append(directObj);
-            }
+        QJsonObject directObj{
+            {"tag", "dns-direct"},
+            {"address_resolver", "dns-local"},
+            {"strategy", dataStore->routing->direct_dns_strategy},
+            {"address", directDNSAddress.replace("+local://", "://")},
+            {"detour", "direct"},
+        };
+        if (dataStore->routing->dns_final_out == "bypass") {
+            dnsServers.prepend(directObj);
+        } else {
+            dnsServers.append(directObj);
         }
 
         // block
@@ -595,6 +589,12 @@ namespace NekoGui {
             {"detour", "direct"},
         };
 
+        // serverAddress dns rule
+        dnsRules += QJsonObject{
+            {"outbound", "any"},
+            {"server", "dns-direct"},
+        };
+
         // sing-box dns rule object
         auto add_rule_dns = [&](const QStringList &list, const QString &server) {
             auto rule = make_rule(list, false);
@@ -602,8 +602,10 @@ namespace NekoGui {
             rule["server"] = server;
             dnsRules += rule;
         };
-        add_rule_dns(status->domainListDNSRemote, "dns-remote");
-        add_rule_dns(status->domainListDNSDirect, "dns-direct");
+        if (!status->forTest) {
+            add_rule_dns(status->domainListDNSRemote, "dns-remote");
+            add_rule_dns(status->domainListDNSDirect, "dns-direct");
+        }
 
         // built-in rules
         if (!status->forTest) {
@@ -628,8 +630,9 @@ namespace NekoGui {
         dns["servers"] = dnsServers;
         dns["rules"] = dnsRules;
         dns["independent_cache"] = true;
+        dns["reverse_mapping"] = true;
 
-        if (dataStore->routing->use_dns_object) {
+        if (dataStore->routing->use_dns_object && !status->forTest) {
             dns = QString2QJsonObject(dataStore->routing->dns_object);
         }
         status->result->coreConfig.insert("dns", dns);
@@ -638,10 +641,17 @@ namespace NekoGui {
 
         // dns hijack
         if (!status->forTest) {
-            status->routingRules += QJsonObject{
-                {"protocol", "dns"},
-                {"outbound", "dns-out"},
-            };
+            if (dataStore->routing->sniffing_mode == SniffingMode::DISABLE) {
+                status->routingRules += QJsonObject{
+                    {"port", 53},
+                    {"outbound", "dns-out"},
+                };
+            } else {
+                status->routingRules += QJsonObject{
+                    {"protocol", "dns"},
+                    {"outbound", "dns-out"},
+                };
+            }
         }
 
         // sing-box routing rule object
