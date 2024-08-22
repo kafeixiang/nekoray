@@ -11,7 +11,7 @@ namespace NekoGui {
         QString block_ip;
         QString block_domain;
         QString def_outbound = "proxy";
-        QString custom = "{\"rules\": []}";
+        QString custom = "{}";
 
         // DNS
         QString remote_dns = "https://8.8.8.8/dns-query";

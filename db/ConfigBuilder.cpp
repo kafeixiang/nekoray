@@ -715,26 +715,22 @@ namespace NekoGui {
         if (geosite.isEmpty()) status->result->error = +"geosite.db not found";
 
         // final add routing rule
-        auto routingRules = QString2QJsonObject(dataStore->routing->custom)["rules"].toArray();
-        if (status->forTest) routingRules = {};
-        if (!status->forTest) QJSONARRAY_ADD(routingRules, QString2QJsonObject(dataStore->custom_route_global)["rules"].toArray())
-        QJSONARRAY_ADD(routingRules, status->routingRules)
-        auto routeObj = QJsonObject{
-            {"rules", routingRules},
-            {"auto_detect_interface", true},
-            {
-                "geoip",
-                QJsonObject{
-                    {"path", geoip},
-                },
-            },
-            {
-                "geosite",
-                QJsonObject{
-                    {"path", geosite},
-                },
-            }};
-        if (!status->forTest) routeObj["final"] = dataStore->routing->def_outbound;
+        QJsonObject routeObj;
+        if (!status->forTest) {
+            auto custom_routeObj = QString2QJsonObject(dataStore->routing->custom);
+            if (custom_routeObj.isEmpty()) {
+                routeObj = QJsonObject{
+                    {"auto_detect_interface", true},
+                    {"rules", status->routingRules},
+                    {"final", dataStore->routing->def_outbound},
+                    {"geoip", QJsonObject{{"path", geoip}}},
+                    {"geosite", QJsonObject{{"path", geosite}}}};
+            } else {
+                routeObj = custom_routeObj;
+            }
+        } else {
+            routeObj["auto_detect_interface"] = true;
+        }
         if (status->forExport) {
             routeObj.remove("geoip");
             routeObj.remove("geosite");
