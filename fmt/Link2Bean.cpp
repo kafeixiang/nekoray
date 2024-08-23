@@ -139,7 +139,9 @@ namespace NekoGui_fmt {
             }
 
             auto query = GetQuery(url);
-            plugin = query.queryItemValue("plugin").replace("simple-obfs;", "obfs-local;");
+            if (!query.queryItemValue("plugin").startsWith("none")) {
+                plugin = query.queryItemValue("plugin").replace("simple-obfs;", "obfs-local;");
+            } 
             auto mux_str = GetQueryValue(query, "mux", "");
             if (mux_str == "true") {
                 mux_state = 1;
