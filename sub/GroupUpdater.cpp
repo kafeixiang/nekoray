@@ -38,19 +38,19 @@ namespace NekoGui_sub {
     int JsonEndIdx(const QString &str, int begin) {
         int sz = str.length();
         int counter = 1;
-        for (int i=begin+1;i<sz;i++) {
+        for (int i = begin + 1; i < sz; i++) {
             if (str[i] == '{') counter++;
             if (str[i] == '}') counter--;
-            if (counter==0) return i;
+            if (counter == 0) return i;
         }
         return -1;
     }
 
     QList<QString> Disect(const QString &str) {
         QList<QString> res = QList<QString>();
-        int idx=0;
+        int idx = 0;
         int sz = str.size();
-        while(idx < sz) {
+        while (idx < sz) {
             if (str[idx] == '\n') {
                 idx++;
                 continue;
@@ -58,19 +58,19 @@ namespace NekoGui_sub {
             if (str[idx] == '{') {
                 int endIdx = JsonEndIdx(str, idx);
                 if (endIdx == -1) return res;
-                res.append(str.mid(idx, endIdx-idx + 1));
-                idx = endIdx+1;
+                res.append(str.mid(idx, endIdx - idx + 1));
+                idx = endIdx + 1;
                 continue;
             }
             int nlineIdx = str.indexOf('\n', idx);
             if (nlineIdx == -1) nlineIdx = sz;
-            res.append(str.mid(idx, nlineIdx-idx));
-            idx = nlineIdx+1;
+            res.append(str.mid(idx, nlineIdx - idx));
+            idx = nlineIdx + 1;
         }
         return res;
     }
 
-    void RawUpdater::update(const QString &str, bool needParse = true) {
+    void RawUpdater::update(const QString &str, bool needParse = true, int index = 0) {
         // Base64 encoded subscription
         if (auto str2 = DecodeB64IfValid(str); !str2.isEmpty()) {
             update(str2);
@@ -87,7 +87,7 @@ namespace NekoGui_sub {
         if (str.count("\n") > 0 && needParse) {
             auto list = Disect(str);
             for (const auto &str2: list) {
-                update(str2.trimmed(), false);
+                update(str2.trimmed(), false, ++index);
             }
             return;
         }
@@ -99,6 +99,7 @@ namespace NekoGui_sub {
 
         std::shared_ptr<NekoGui::ProxyEntity> ent;
         bool needFix = true;
+        bool ok = true;
 
         // Nekoray format
         if (str.startsWith("nekoray://")) {
@@ -113,7 +114,7 @@ namespace NekoGui_sub {
         }
 
         // Json
-        if (str.startsWith('{')) {
+        else if (str.startsWith('{')) {
             ent = NekoGui::ProfileManager::NewProxyEntity("custom");
             auto bean = ent->CustomBean();
             auto obj = QString2QJsonObject(str);
@@ -129,81 +130,78 @@ namespace NekoGui_sub {
         }
 
         // SOCKS
-        if (str.startsWith("socks5://") || str.startsWith("socks4://") ||
-            str.startsWith("socks4a://") || str.startsWith("socks://")) {
+        else if (str.startsWith("socks5://") || str.startsWith("socks4://") ||
+                 str.startsWith("socks4a://") || str.startsWith("socks://")) {
             ent = NekoGui::ProfileManager::NewProxyEntity("socks");
-            auto ok = ent->SocksHTTPBean()->TryParseLink(str);
-            if (!ok) return;
+            ok = ent->SocksHTTPBean()->TryParseLink(str);
         }
 
         // HTTP
-        if (str.startsWith("http://") || str.startsWith("https://")) {
+        else if (str.startsWith("http://") || str.startsWith("https://")) {
             ent = NekoGui::ProfileManager::NewProxyEntity("http");
-            auto ok = ent->SocksHTTPBean()->TryParseLink(str);
-            if (!ok) return;
+            ok = ent->SocksHTTPBean()->TryParseLink(str);
         }
 
         // ShadowSocks
-        if (str.startsWith("ss://")) {
+        else if (str.startsWith("ss://")) {
             ent = NekoGui::ProfileManager::NewProxyEntity("shadowsocks");
-            auto ok = ent->ShadowSocksBean()->TryParseLink(str);
-            if (!ok) return;
+            ok = ent->ShadowSocksBean()->TryParseLink(str);
         }
 
         // VMess
-        if (str.startsWith("vmess://")) {
+        else if (str.startsWith("vmess://")) {
             ent = NekoGui::ProfileManager::NewProxyEntity("vmess");
-            auto ok = ent->VMessBean()->TryParseLink(str);
-            if (!ok) return;
+            ok = ent->VMessBean()->TryParseLink(str);
         }
 
         // VLESS
-        if (str.startsWith("vless://")) {
+        else if (str.startsWith("vless://")) {
             ent = NekoGui::ProfileManager::NewProxyEntity("vless");
-            auto ok = ent->TrojanVLESSBean()->TryParseLink(str);
-            if (!ok) return;
+            ok = ent->TrojanVLESSBean()->TryParseLink(str);
         }
 
         // Trojan
-        if (str.startsWith("trojan://")) {
+        else if (str.startsWith("trojan://")) {
             ent = NekoGui::ProfileManager::NewProxyEntity("trojan");
-            auto ok = ent->TrojanVLESSBean()->TryParseLink(str);
-            if (!ok) return;
+            ok = ent->TrojanVLESSBean()->TryParseLink(str);
         }
 
         // Naive
-        if (str.startsWith("naive+")) {
+        else if (str.startsWith("naive+")) {
             needFix = false;
             ent = NekoGui::ProfileManager::NewProxyEntity("naive");
-            auto ok = ent->NaiveBean()->TryParseLink(str);
-            if (!ok) return;
+            ok = ent->NaiveBean()->TryParseLink(str);
         }
 
         // Hysteria1
-        if (str.startsWith("hysteria://")) {
+        else if (str.startsWith("hysteria://")) {
             needFix = false;
             ent = NekoGui::ProfileManager::NewProxyEntity("hysteria");
-            auto ok = ent->QUICBean()->TryParseLink(str);
-            if (!ok) return;
+            ok = ent->QUICBean()->TryParseLink(str);
         }
 
         // Hysteria2
-        if (str.startsWith("hysteria2://") || str.startsWith("hy2://")) {
+        else if (str.startsWith("hysteria2://") || str.startsWith("hy2://")) {
             needFix = false;
             ent = NekoGui::ProfileManager::NewProxyEntity("hysteria2");
-            auto ok = ent->QUICBean()->TryParseLink(str);
-            if (!ok) return;
+            ok = ent->QUICBean()->TryParseLink(str);
         }
 
         // TUIC
-        if (str.startsWith("tuic://")) {
+        else if (str.startsWith("tuic://")) {
             needFix = false;
             ent = NekoGui::ProfileManager::NewProxyEntity("tuic");
-            auto ok = ent->QUICBean()->TryParseLink(str);
-            if (!ok) return;
+            ok = ent->QUICBean()->TryParseLink(str);
         }
 
-        if (ent == nullptr) return;
+        else return;
+
+        if (!ok) {
+            if (index > 0) {
+                MW_show_log(QObject::tr("第 %1 个节点解析失败").arg(index));
+            }
+            return;
+        }
 
         // Fix
         if (needFix) RawUpdater_FixEnt(ent);
@@ -280,15 +278,15 @@ namespace NekoGui_sub {
 #ifndef NKR_NO_YAML
         try {
             auto proxies = YAML::Load(str.toStdString())["proxies"];
+            auto index = 0;
             for (auto proxy: proxies) {
+                ++index;
                 auto type = Node2QString(proxy["type"]).toLower();
-                auto type_clash = type;
 
-                if (type == "ss" || type == "ssr") type = "shadowsocks";
+                if (type == "ss") type = "shadowsocks";
                 if (type == "socks5") type = "socks";
 
                 auto ent = NekoGui::ProfileManager::NewProxyEntity(type);
-                if (ent->bean->version == -114514) continue;
                 bool needFix = false;
 
                 // common
@@ -296,7 +294,7 @@ namespace NekoGui_sub {
                 ent->bean->serverAddress = Node2QString(proxy["server"]);
                 ent->bean->serverPort = Node2Int(proxy["port"]);
 
-                if (type_clash == "ss") {
+                if (type == "shadowsocks") {
                     auto bean = ent->ShadowSocksBean();
                     bean->method = Node2QString(proxy["cipher"]).replace("dummy", "none");
                     bean->password = Node2QString(proxy["password"]);
@@ -542,6 +540,7 @@ namespace NekoGui_sub {
                         bean->serverAddress = Node2QString(proxy["ip"]);
                     }
                 } else {
+                    MW_show_log(QObject::tr("第 %1 个节点解析失败").arg(index));
                     continue;
                 }
 
