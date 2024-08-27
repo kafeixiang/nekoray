@@ -55,7 +55,7 @@ namespace NekoGui_fmt {
 
         // security
 
-        auto type =  GetQueryValue(query, "type", "tcp");
+        auto type = GetQueryValue(query, "type", "tcp");
         if (type == "h2") {
             type = "http";
         }
@@ -141,7 +141,7 @@ namespace NekoGui_fmt {
             auto query = GetQuery(url);
             if (!query.queryItemValue("plugin").startsWith("none")) {
                 plugin = query.queryItemValue("plugin").replace("simple-obfs;", "obfs-local;");
-            } 
+            }
             auto mux_str = GetQueryValue(query, "mux", "");
             if (mux_str == "true") {
                 mux_state = 1;
@@ -160,6 +160,28 @@ namespace NekoGui_fmt {
             password = url.password();
         }
         return !(serverAddress.isEmpty() || method.isEmpty() || password.isEmpty());
+    }
+
+    bool ShadowSocksRBean::TryParseLink(const QString &link) {
+        QString decodedData = DecodeB64IfValid(link.mid(6).replace("-", "+").replace("_", "/"), QByteArray::Base64Option::Base64Encoding);
+
+        QStringList parts = decodedData.split(':');
+        if (parts.size() < 6)
+            return false;
+
+        serverAddress = parts[0];
+        serverPort = parts[1].toInt();
+        protocol = parts[2];
+        method = parts[3];
+        obfs = parts[4];
+        password = DecodeB64IfValid(parts[5].split("/")[0].replace("-", "+").replace("_", "/"), QByteArray::Base64Option::Base64Encoding);
+
+        auto query = GetQuery(QUrl("ssr://" + decodedData));
+        obfsParam = DecodeB64IfValid(query.queryItemValue("obfsparam").replace("-", "+").replace("_", "/"), QByteArray::Base64Option::Base64Encoding);
+        protocolParam = DecodeB64IfValid(query.queryItemValue("protoparam").replace("-", "+").replace("_", "/"), QByteArray::Base64Option::Base64Encoding);
+        name = DecodeB64IfValid(query.queryItemValue("remarks").replace("-", "+").replace("_", "/"), QByteArray::Base64Option::Base64Encoding);
+
+        return !serverAddress.isEmpty();
     }
 
     bool VMessBean::TryParseLink(const QString &link) {

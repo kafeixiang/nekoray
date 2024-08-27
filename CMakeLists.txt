@@ -146,6 +146,9 @@ set(PROJECT_SOURCES
         ui/edit/edit_shadowsocks.h
         ui/edit/edit_shadowsocks.cpp
         ui/edit/edit_shadowsocks.ui
+        ui/edit/edit_shadowsocksr.h
+        ui/edit/edit_shadowsocksr.cpp
+        ui/edit/edit_shadowsocksr.ui
         ui/edit/edit_vmess.h
         ui/edit/edit_vmess.cpp
         ui/edit/edit_vmess.ui
@@ -161,13 +164,13 @@ set(PROJECT_SOURCES
         ui/edit/edit_quic.cpp
         ui/edit/edit_quic.ui
 
-        ui/edit/edit_custom.h
-        ui/edit/edit_custom.cpp
-        ui/edit/edit_custom.ui
-
         ui/edit/edit_wireguard.h
         ui/edit/edit_wireguard.cpp
         ui/edit/edit_wireguard.ui
+
+        ui/edit/edit_custom.h
+        ui/edit/edit_custom.cpp
+        ui/edit/edit_custom.ui
 
         ui/dialog_basic_settings.cpp
         ui/dialog_basic_settings.h

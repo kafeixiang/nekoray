@@ -3,6 +3,7 @@
 
 #include "ui/edit/edit_socks_http.h"
 #include "ui/edit/edit_shadowsocks.h"
+#include "ui/edit/edit_shadowsocksr.h"
 #include "ui/edit/edit_chain.h"
 #include "ui/edit/edit_vmess.h"
 #include "ui/edit/edit_trojan_vless.h"
@@ -121,6 +122,7 @@ DialogEditProfile::DialogEditProfile(const QString &_type, int profileOrGroupId,
         LOAD_TYPE("socks")
         LOAD_TYPE("http")
         LOAD_TYPE("shadowsocks")
+        LOAD_TYPE("shadowsocksr")
         LOAD_TYPE("trojan")
         LOAD_TYPE("vmess")
         LOAD_TYPE("vless")
@@ -166,6 +168,10 @@ void DialogEditProfile::typeSelected(const QString &newType) {
         innerEditor = _innerWidget;
     } else if (type == "shadowsocks") {
         auto _innerWidget = new EditShadowSocks(this);
+        innerWidget = _innerWidget;
+        innerEditor = _innerWidget;
+    } else if (type == "shadowsocksr") {
+        auto _innerWidget = new EditShadowSocksR(this);
         innerWidget = _innerWidget;
         innerEditor = _innerWidget;
     } else if (type == "chain") {

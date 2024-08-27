@@ -120,6 +120,21 @@ namespace NekoGui_fmt {
         return link;
     }
 
+    QString ShadowSocksRBean::ToShareLink() {
+        QString dataString = QString("%1:%2:%3:%4:%5:%6/?obfsparam=%7&protoparam=%8&remarks=%9")
+            .arg(serverAddress)
+            .arg(serverPort)
+            .arg(protocol)
+            .arg(method)
+            .arg(obfs)
+            .arg(password.isEmpty() ? QString() : QString::fromUtf8(password.toUtf8().toBase64(QByteArray::Base64Option::Base64UrlEncoding)))
+            .arg(obfsParam.isEmpty() ? QString() : QString::fromUtf8(obfsParam.toUtf8().toBase64(QByteArray::Base64Option::Base64UrlEncoding)))
+            .arg(protocolParam.isEmpty() ? QString() : QString::fromUtf8(protocolParam.toUtf8().toBase64(QByteArray::Base64Option::Base64UrlEncoding)))
+            .arg(name.isEmpty() ? QString() : QString::fromUtf8(name.toUtf8().toBase64(QByteArray::Base64Option::Base64UrlEncoding)));
+
+        return "ssr://" + QString::fromUtf8(dataString.toUtf8().toBase64(QByteArray::Base64Option::Base64UrlEncoding));
+    }
+
     QString VMessBean::ToShareLink() {
         if (NekoGui::dataStore->old_share_link_format) {
             // v2rayN format

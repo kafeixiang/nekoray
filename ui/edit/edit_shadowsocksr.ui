@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EditShadowSocksR</class>
+ <widget class="QWidget" name="EditShadowSocksR">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">EditShadowSocksR</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="1">
+    <widget class="QComboBox" name="obfs">
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+     <item>
+      <property name="text">
+       <string/>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">plain</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">http_simple</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">http_post</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">tls1.2_ticket_auth</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">tls1.2_ticket_fastauth</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">random_head</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="Obfs_Param">
+     <property name="text">
+      <string>Obfs Param</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QComboBox" name="protocol">
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+     <item>
+      <property name="text">
+       <string/>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">origin</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">auth_sha1_v4</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">auth_aes128_sha1</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">auth_aes128_md5</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">auth_chain_a</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">auth_chain_b</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="method">
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="Protocol">
+     <property name="text">
+      <string>Protocol</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="Obfs">
+     <property name="text">
+      <string>Obfuscator</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="obfs_param"/>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="password"/>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="Method">
+     <property name="text">
+      <string>Encryption</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="Password">
+     <property name="text">
+      <string>Password</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QLineEdit" name="protocol_param"/>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="Protocol_Param">
+     <property name="text">
+      <string>Protocol Param</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>method</tabstop>
+  <tabstop>password</tabstop>
+  <tabstop>obfs</tabstop>
+  <tabstop>obfs_param</tabstop>
+  <tabstop>protocol</tabstop>
+  <tabstop>protocol_param</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

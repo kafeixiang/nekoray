@@ -9,6 +9,8 @@ namespace NekoGui_fmt {
 
     class ShadowSocksBean;
 
+    class ShadowSocksRBean;
+
     class VMessBean;
 
     class TrojanVLESSBean;
@@ -53,6 +55,10 @@ namespace NekoGui {
 
         [[nodiscard]] NekoGui_fmt::ShadowSocksBean *ShadowSocksBean() const {
             return (NekoGui_fmt::ShadowSocksBean *) bean.get();
+        };
+
+        [[nodiscard]] NekoGui_fmt::ShadowSocksRBean *ShadowSocksRBean() const {
+            return (NekoGui_fmt::ShadowSocksRBean *) bean.get();
         };
 
         [[nodiscard]] NekoGui_fmt::VMessBean *VMessBean() const {

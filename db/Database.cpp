@@ -174,6 +174,8 @@ namespace NekoGui {
             bean = new NekoGui_fmt::SocksHttpBean(NekoGui_fmt::SocksHttpBean::type_HTTP);
         } else if (type == "shadowsocks") {
             bean = new NekoGui_fmt::ShadowSocksBean();
+        } else if (type == "shadowsocksr") {
+            bean = new NekoGui_fmt::ShadowSocksRBean();
         } else if (type == "chain") {
             bean = new NekoGui_fmt::ChainBean();
         } else if (type == "vmess") {

@@ -148,6 +148,12 @@ namespace NekoGui_sub {
             ok = ent->ShadowSocksBean()->TryParseLink(str);
         }
 
+        // ShadowSocksR
+        else if (str.startsWith("ssr://")) {
+            ent = NekoGui::ProfileManager::NewProxyEntity("shadowsocksr");
+            ok = ent->ShadowSocksRBean()->TryParseLink(str);
+        }
+
         // VMess
         else if (str.startsWith("vmess://")) {
             ent = NekoGui::ProfileManager::NewProxyEntity("vmess");
@@ -290,8 +296,9 @@ namespace NekoGui_sub {
                 ++index;
                 auto type = Node2QString(proxy["type"]).toLower();
 
-                if (type == "ss") type = "shadowsocks";
                 if (type == "socks5") type = "socks";
+                if (type == "ss") type = "shadowsocks";
+                if (type == "ssr") type = "shadowsocksr";
 
                 auto ent = NekoGui::ProfileManager::NewProxyEntity(type);
                 bool needFix = false;
@@ -340,6 +347,14 @@ namespace NekoGui_sub {
                     // sing-mux
                     auto smux = NodeChild(proxy, {"smux"});
                     if (Node2Bool(smux["enabled"])) bean->mux_state = 1;
+                } else if (type == "shadowsocksr") {
+                    auto bean = ent->ShadowSocksRBean();
+                    bean->method = Node2QString(proxy["cipher"]).replace("dummy", "none");
+                    bean->password = Node2QString(proxy["password"]);
+                    bean->obfs = Node2QString(proxy["obfs"]);
+                    bean->obfsParam = Node2QString(proxy["obfs-param"]);
+                    bean->protocol = Node2QString(proxy["protocol"]);
+                    bean->protocolParam = Node2QString(proxy["protocol-param"]);
                 } else if (type == "socks" || type == "http") {
                     auto bean = ent->SocksHTTPBean();
                     bean->username = Node2QString(proxy["username"]);

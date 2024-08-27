@@ -100,11 +100,13 @@ namespace NekoGui_fmt {
     CoreObjOutboundBuildResult ShadowSocksBean::BuildCoreObjSingBox() {
         CoreObjOutboundBuildResult result;
 
-        QJsonObject outbound{{"type", "shadowsocks"}};
-        outbound["server"] = serverAddress;
-        outbound["server_port"] = serverPort;
-        outbound["method"] = method;
-        outbound["password"] = password;
+        QJsonObject outbound{
+            {"type", "shadowsocks"},
+            {"server", serverAddress},
+            {"server_port", serverPort},
+            {"method", method},
+            {"password", password}
+        };
 
         if (uot != 0) {
             QJsonObject udp_over_tcp{
@@ -121,7 +123,25 @@ namespace NekoGui_fmt {
             outbound["plugin_opts"] = SubStrAfter(plugin, ";");
         }
 
-        stream->BuildStreamSettingsSingBox(&outbound);
+        result.outbound = outbound;
+        return result;
+    }
+
+    CoreObjOutboundBuildResult ShadowSocksRBean::BuildCoreObjSingBox() {
+        CoreObjOutboundBuildResult result;
+
+        QJsonObject outbound{
+            {"type", "shadowsocksr"},
+            {"server", serverAddress},
+            {"server_port", serverPort},
+            {"method", method},
+            {"password", password},
+            {"obfs",obfs},
+            {"obfs_param",obfsParam},
+            {"protocol",protocol},
+            {"protocol_param",protocolParam}
+        };
+
         result.outbound = outbound;
         return result;
     }
