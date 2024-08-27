@@ -347,7 +347,7 @@ namespace NekoGui_fmt {
         return true;
     }
 
-    bool WireguardBean::TryParseLink(const QString &link) {
+    bool WireGuardBean::TryParseLink(const QString &link) {
         auto url = QUrl(link);
         if (!url.isValid()) return false;
         auto query = GetQuery(url);
@@ -358,10 +358,8 @@ namespace NekoGui_fmt {
         privateKey = query.queryItemValue("private_key");
         publicKey = query.queryItemValue("peer_public_key");
         preSharedKey = query.queryItemValue("pre_shared_key");
-        auto rawReserved = query.queryItemValue("reserved");
-        if (!rawReserved.isEmpty()) {
-            for (const auto &item: rawReserved.split("-")) reserved += item.toInt();
-        }
+        localAddress = query.queryItemValue("local_address");
+        reserved = query.queryItemValue("reserved");
         MTU = query.queryItemValue("mtu").toInt();
         useSystemInterface = query.queryItemValue("use_system_interface") == "true";
 

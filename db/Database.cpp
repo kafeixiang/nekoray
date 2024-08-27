@@ -191,7 +191,7 @@ namespace NekoGui {
         } else if (type == "tuic") {
             bean = new NekoGui_fmt::QUICBean(NekoGui_fmt::QUICBean::proxy_TUIC);
         } else if (type == "wireguard") {
-            bean = new NekoGui_fmt::WireguardBean(NekoGui_fmt::WireguardBean());
+            bean = new NekoGui_fmt::WireGuardBean(NekoGui_fmt::WireGuardBean());
         } else if (type == "custom") {
             bean = new NekoGui_fmt::CustomBean();
         } else {

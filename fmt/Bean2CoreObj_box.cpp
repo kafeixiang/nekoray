@@ -232,7 +232,7 @@ namespace NekoGui_fmt {
         return result;
     }
 
-    CoreObjOutboundBuildResult WireguardBean::BuildCoreObjSingBox() {
+    CoreObjOutboundBuildResult WireGuardBean::BuildCoreObjSingBox() {
         CoreObjOutboundBuildResult result;
 
         auto tun_name = "nekoray-wg";
@@ -245,11 +245,11 @@ namespace NekoGui_fmt {
             {"server", serverAddress},
             {"server_port", serverPort},
             {"interface_name", tun_name},
-            {"local_address", QJsonArray{"172.20.0.1/24", "fdfe:dcba:9876::1/96"}},
             {"private_key", privateKey},
             {"peer_public_key", publicKey},
             {"pre_shared_key", preSharedKey},
-            {"reserved", QListInt2QJsonArray(reserved)},
+            {"local_address", QString2QJsonArray(localAddress)},
+            {"reserved", QString2QJsonArray(reserved)},
             {"mtu", MTU},
             {"gso", enableGSO},
             {"system_interface", useSystemInterface}

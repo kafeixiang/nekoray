@@ -189,7 +189,7 @@ void DialogEditProfile::typeSelected(const QString &newType) {
         innerWidget = _innerWidget;
         innerEditor = _innerWidget;
     } else if (type == "wireguard") {
-        auto _innerWidget = new EditWireguard(this);
+        auto _innerWidget = new EditWireGuard(this);
         innerWidget = _innerWidget;
         innerEditor = _innerWidget;
     } else if (type == "custom" || type == "internal" || type == "internal-full") {

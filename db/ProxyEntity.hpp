@@ -17,7 +17,7 @@ namespace NekoGui_fmt {
 
     class QUICBean;
 
-    class WireguardBean;
+    class WireGuardBean;
 
     class CustomBean;
 
@@ -71,8 +71,8 @@ namespace NekoGui {
             return (NekoGui_fmt::QUICBean *) bean.get();
         };
 
-        [[nodiscard]] NekoGui_fmt::WireguardBean *WireguardBean() const {
-            return (NekoGui_fmt::WireguardBean *) bean.get();
+        [[nodiscard]] NekoGui_fmt::WireGuardBean *WireGuardBean() const {
+            return (NekoGui_fmt::WireGuardBean *) bean.get();
         };
 
         [[nodiscard]] NekoGui_fmt::CustomBean *CustomBean() const {

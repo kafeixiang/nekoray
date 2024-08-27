@@ -316,7 +316,7 @@ namespace NekoGui {
             }
 
             if (ent->type == "wireguard") {
-                if (ent->WireguardBean()->useSystemInterface && !NekoGui::IsAdmin()) {
+                if (ent->WireGuardBean()->useSystemInterface && !NekoGui::IsAdmin()) {
                     MW_dialog_message("configBuilder" ,"NeedAdmin");
                     status->result->error = "using wireguard system interface requires elevated permissions";
                     return {};

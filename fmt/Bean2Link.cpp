@@ -270,7 +270,7 @@ namespace NekoGui_fmt {
         return url.toString(QUrl::FullyEncoded);
     }
 
-    QString WireguardBean::ToShareLink() {
+    QString WireGuardBean::ToShareLink() {
         QUrl url;
         url.setScheme("wg");
         url.setHost(serverAddress);
@@ -280,7 +280,8 @@ namespace NekoGui_fmt {
         q.addQueryItem("private_key", privateKey);
         q.addQueryItem("peer_public_key", publicKey);
         q.addQueryItem("pre_shared_key", preSharedKey);
-        q.addQueryItem("reserved", FormatReserved());
+        q.addQueryItem("local_address", localAddress);
+        q.addQueryItem("reserved", reserved);
         q.addQueryItem("mtu", Int2String(MTU));
         q.addQueryItem("use_system_interface", useSystemInterface ? "true":"false");
         url.setQuery(q);
