@@ -369,6 +369,26 @@ namespace NekoGui_fmt {
         return true;
     }
 
+    bool SSHBean::TryParseLink(const QString &link) {
+        auto url = QUrl(link);
+        if (!url.isValid()) return false;
+        auto query = GetQuery(url);
+
+        name = url.fragment(QUrl::FullyDecoded);
+        serverAddress = url.host();
+        serverPort = url.port();
+        user = query.queryItemValue("user");
+        password = query.queryItemValue("password");
+        privateKey = DecodeB64IfValid(query.queryItemValue("private_key"), QByteArray::Base64Option::Base64UrlEncoding);
+        privateKeyPath = query.queryItemValue("private_key_path");
+        privateKeyPassphrase = query.queryItemValue("private_key_passphrase");
+        hostKey = query.queryItemValue("host_key");
+        hostKeyAlgorithms = query.queryItemValue("host_key_algorithms");
+        clientVersion = query.queryItemValue("client_version");
+
+        return true;
+    }
+
     bool WireGuardBean::TryParseLink(const QString &link) {
         auto url = QUrl(link);
         if (!url.isValid()) return false;

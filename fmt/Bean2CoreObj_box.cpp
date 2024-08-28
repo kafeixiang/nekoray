@@ -252,6 +252,27 @@ namespace NekoGui_fmt {
         return result;
     }
 
+    CoreObjOutboundBuildResult SSHBean::BuildCoreObjSingBox() {
+        CoreObjOutboundBuildResult result;
+
+        QJsonObject outbound{
+            {"type", "ssh"},
+            {"server", serverAddress},
+            {"server_port", serverPort},
+            {"user", user},
+            {"password", password},
+            {"private_key", privateKey},
+            {"private_key_path", privateKeyPath},
+            {"private_key_passphrase", privateKeyPassphrase},
+            {"host_key", QString2QJsonArray(hostKey)},
+            {"host_key_algorithms", QString2QJsonArray(hostKeyAlgorithms)},
+            {"client_version", clientVersion}
+        };
+
+        result.outbound = outbound;
+        return result;
+    }
+
     CoreObjOutboundBuildResult WireGuardBean::BuildCoreObjSingBox() {
         CoreObjOutboundBuildResult result;
 

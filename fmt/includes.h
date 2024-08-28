@@ -8,5 +8,6 @@
 #include "TrojanVLESSBean.hpp"
 #include "NaiveBean.hpp"
 #include "QUICBean.hpp"
+#include "SSHBean.hpp"
 #include "WireGuardBean.hpp"
 #include "CustomBean.hpp"

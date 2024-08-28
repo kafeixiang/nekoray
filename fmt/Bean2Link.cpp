@@ -285,6 +285,25 @@ namespace NekoGui_fmt {
         return url.toString(QUrl::FullyEncoded);
     }
 
+    QString SSHBean::ToShareLink() {
+        QUrl url;
+        url.setScheme("ssh");
+        url.setHost(serverAddress);
+        url.setPort(serverPort);
+        if (!name.isEmpty()) url.setFragment(name);
+        QUrlQuery q;
+        q.addQueryItem("user", user);
+        if (!password.isEmpty()) q.addQueryItem("password", password);
+        if (!privateKey.isEmpty()) q.addQueryItem("private_key", QString::fromUtf8(privateKey.toUtf8().toBase64(QByteArray::Base64Option::Base64UrlEncoding)));
+        if (!privateKeyPath.isEmpty()) q.addQueryItem("private_key_path", privateKeyPath);
+        if (!privateKeyPassphrase.isEmpty()) q.addQueryItem("private_key_passphrase", privateKeyPassphrase);
+        if (!hostKey.isEmpty()) q.addQueryItem("host_key", hostKey);
+        if (!hostKeyAlgorithms.isEmpty()) q.addQueryItem("host_key_algorithms", hostKeyAlgorithms);
+        if (!clientVersion.isEmpty()) q.addQueryItem("client_version", clientVersion);
+        url.setQuery(q);
+        return url.toString(QUrl::FullyEncoded);
+    }
+
     QString WireGuardBean::ToShareLink() {
         QUrl url;
         url.setScheme("wg");

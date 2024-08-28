@@ -12,6 +12,7 @@
 #ifndef NKR_NO_YAML
 
 #include <yaml-cpp/yaml.h>
+#include <QFile>
 
 #endif
 
@@ -198,6 +199,13 @@ namespace NekoGui_sub {
             needFix = false;
             ent = NekoGui::ProfileManager::NewProxyEntity("tuic");
             ok = ent->QUICBean()->TryParseLink(str);
+        }
+
+        // SSH
+        else if (str.startsWith("ssh://")) {
+            needFix = false;
+            ent = NekoGui::ProfileManager::NewProxyEntity("ssh");
+            ok = ent->SSHBean()->TryParseLink(str);
         }
 
         // WireGuard
@@ -561,6 +569,15 @@ namespace NekoGui_sub {
                         if (bean->sni.isEmpty()) bean->sni = bean->serverAddress;
                         bean->serverAddress = Node2QString(proxy["ip"]);
                     }
+                } else if (type == "ssh") {
+                    auto bean = ent->SSHBean();
+                    bean->user = Node2QString(proxy["username"]);
+                    bean->password = Node2QString(proxy["password"]);
+                    auto key = Node2QString(proxy["private-key"]);
+                    QFile::exists(key) ? bean->privateKeyPath = key : bean->privateKey = key;
+                    bean->privateKeyPassphrase = Node2QString(proxy["private-key-passphrase"]);
+                    bean->hostKey = Node2QString(proxy["host-key"]);
+                    bean->hostKeyAlgorithms = Node2QString(proxy["host-key-algorithms"]);
                 } else if (type == "wireguard") {
                     auto getFieldValue = [&](const auto &key) -> QString {
                         QString value = Node2QString(proxy[key]);
