@@ -26,8 +26,13 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
-      - name: Checking out sources
+      - name: Checking GUI sources
         uses: actions/checkout@v4
+      - name: Checking core sources
+        uses: actions/checkout@v4
+        with:
+          repository: 'Restia-Ashbell/sing-box'
+          path: CORE
       - name: Go Status
         run: git ls-files go | xargs cat | sha1sum > go_status
       - name: Cache Common Download
@@ -40,7 +45,7 @@ jobs:
         if: steps.cache-common.outputs.cache-hit != 'true' && matrix.cross_os != 'windows7'
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: '1.23'
       - name: Install Older Golang
         if: steps.cache-common.outputs.cache-hit != 'true' && matrix.cross_os == 'windows7'
         uses: actions/setup-go@v5

@@ -176,7 +176,7 @@ void MainWindow::speedtest_current_group(int mode) {
                         }
                         //
                         auto config = new libcore::LoadConfigReq;
-                        config->set_core_config(QJsonObject2QString(c->coreConfig, true).toStdString());
+                        config->set_core_config(QJsonObject2QString(c->coreConfig, false).toStdString());
                         req.set_allocated_config(config);
                         req.set_in_address(profile->bean->serverAddress.toStdString());
 
@@ -295,7 +295,7 @@ void MainWindow::neko_start(int _id) {
 
     auto neko_start_stage2 = [=] {
         libcore::LoadConfigReq req;
-        req.set_core_config(QJsonObject2QString(result->coreConfig, true).toStdString());
+        req.set_core_config(QJsonObject2QString(result->coreConfig, false).toStdString());
         req.set_disable_stats(NekoGui::dataStore->disable_traffic_stats);
         if (NekoGui::dataStore->traffic_loop_interval > 0) {
             req.add_stats_outbounds("proxy");

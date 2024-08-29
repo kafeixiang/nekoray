@@ -593,7 +593,7 @@ namespace NekoGui {
         // Underlying 100% Working DNS
         dnsServers += QJsonObject{
             {"tag", "dns-local"},
-            {"address", BOX_UNDERLYING_DNS_EXPORT},
+            {"address", "local"},
             {"detour", "direct"},
         };
 
