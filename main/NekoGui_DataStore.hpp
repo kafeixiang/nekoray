@@ -19,6 +19,7 @@ namespace NekoGui {
         QString direct_dns = "localhost";
         QString direct_dns_strategy = "";
         bool dns_routing = true;
+        bool fake_dns = false;
         bool use_dns_object = false;
         QString dns_object = "";
         QString dns_final_out = "proxy";
@@ -146,7 +147,6 @@ namespace NekoGui {
         QString active_routing = "Default";
 
         // VPN
-        bool fake_dns = false;
         bool enable_gso = false;
         int vpn_implementation = 0;
         int vpn_mtu = 9000;

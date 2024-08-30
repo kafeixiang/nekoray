@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -30,7 +30,7 @@
           <item row="4" column="1">
            <spacer name="verticalSpacer">
             <property name="orientation">
-             <enum>Qt::Vertical</enum>
+             <enum>Qt::Orientation::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -131,7 +131,7 @@ For sing-box, it sets inbound.domain_strategy</string>
           <item row="1" column="2">
            <spacer name="horizontalSpacer_3">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -251,9 +251,16 @@ For more information, see the document &quot;Configuration/DNS&quot;.</string>
              </widget>
             </item>
             <item>
+             <widget class="QCheckBox" name="fake_dns">
+              <property name="text">
+               <string>Enable FakeIP</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <spacer name="horizontalSpacer_2">
               <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+               <enum>Qt::Orientation::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
@@ -301,7 +308,7 @@ For more information, see the document &quot;Configuration/DNS&quot;.</string>
               </property>
               <item>
                <property name="text">
-                <string notr="true">localhost</string>
+                <string notr="true">local</string>
                </property>
               </item>
               <item>
@@ -428,7 +435,7 @@ For more information, see the document &quot;Configuration/DNS&quot;.</string>
                <string>Block</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignCenter</set>
+               <set>Qt::AlignmentFlag::AlignCenter</set>
               </property>
              </widget>
             </item>
@@ -441,7 +448,7 @@ For more information, see the document &quot;Configuration/DNS&quot;.</string>
                <string>Direct</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignCenter</set>
+               <set>Qt::AlignmentFlag::AlignCenter</set>
               </property>
              </widget>
             </item>
@@ -451,7 +458,7 @@ For more information, see the document &quot;Configuration/DNS&quot;.</string>
                <string>Domain</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
               </property>
              </widget>
             </item>
@@ -467,7 +474,7 @@ For more information, see the document &quot;Configuration/DNS&quot;.</string>
                <string>Proxy</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignCenter</set>
+               <set>Qt::AlignmentFlag::AlignCenter</set>
               </property>
              </widget>
             </item>
@@ -483,7 +490,7 @@ For more information, see the document &quot;Configuration/DNS&quot;.</string>
                <string>IP</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
               </property>
              </widget>
             </item>
@@ -521,10 +528,10 @@ For more information, see the document &quot;Configuration/DNS&quot;.</string>
                   <string>Preset</string>
                  </property>
                  <property name="popupMode">
-                  <enum>QToolButton::InstantPopup</enum>
+                  <enum>QToolButton::ToolButtonPopupMode::InstantPopup</enum>
                  </property>
                  <property name="toolButtonStyle">
-                  <enum>Qt::ToolButtonTextBesideIcon</enum>
+                  <enum>Qt::ToolButtonStyle::ToolButtonTextBesideIcon</enum>
                  </property>
                 </widget>
                </item>
@@ -541,7 +548,7 @@ For more information, see the document &quot;Configuration/DNS&quot;.</string>
             <item>
              <spacer name="horizontalSpacer">
               <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+               <enum>Qt::Orientation::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
@@ -615,7 +622,7 @@ For more information, see the document &quot;Configuration/DNS&quot;.</string>
         </sizepolicy>
        </property>
        <property name="standardButtons">
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+        <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
        </property>
       </widget>
      </item>
@@ -635,6 +642,7 @@ For more information, see the document &quot;Configuration/DNS&quot;.</string>
   <tabstop>direct_dns</tabstop>
   <tabstop>direct_dns_strategy</tabstop>
   <tabstop>dns_routing</tabstop>
+  <tabstop>fake_dns</tabstop>
   <tabstop>dns_final_out</tabstop>
   <tabstop>use_dns_object</tabstop>
   <tabstop>format_dns_object</tabstop>

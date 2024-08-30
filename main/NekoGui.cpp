@@ -260,7 +260,6 @@ namespace NekoGui {
         _add(new configItem("hk_route", &hotkey_route, itemType::string));
         _add(new configItem("hk_spmenu", &hotkey_system_proxy_menu, itemType::string));
         _add(new configItem("hk_toggle", &hotkey_toggle_system_proxy, itemType::string));
-        _add(new configItem("fakedns", &fake_dns, itemType::boolean));
         _add(new configItem("active_routing", &active_routing, itemType::string));
         _add(new configItem("mw_size", &mw_size, itemType::string));
         _add(new configItem("disable_traffic_stats", &disable_traffic_stats, itemType::boolean));
@@ -362,6 +361,7 @@ namespace NekoGui {
         _add(new configItem("domain_strategy", &this->domain_strategy, itemType::string));
         _add(new configItem("outbound_domain_strategy", &this->outbound_domain_strategy, itemType::string));
         _add(new configItem("dns_routing", &this->dns_routing, itemType::boolean));
+        _add(new configItem("fake_dns", &fake_dns, itemType::boolean));
         _add(new configItem("sniffing_mode", &this->sniffing_mode, itemType::integer));
         _add(new configItem("use_dns_object", &this->use_dns_object, itemType::boolean));
         _add(new configItem("dns_object", &this->dns_object, itemType::string));

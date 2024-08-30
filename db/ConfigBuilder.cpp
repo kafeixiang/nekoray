@@ -317,7 +317,7 @@ namespace NekoGui {
 
             if (ent->type == "wireguard") {
                 if (ent->WireGuardBean()->useSystemInterface && !NekoGui::IsAdmin()) {
-                    MW_dialog_message("configBuilder" ,"NeedAdmin");
+                    MW_dialog_message("configBuilder", "NeedAdmin");
                     status->result->error = "using wireguard system interface requires elevated permissions";
                     return {};
                 }
@@ -566,6 +566,13 @@ namespace NekoGui {
             dnsServers.append(directObj);
         }
 
+        // Underlying 100% Working DNS
+        dnsServers += QJsonObject{
+            {"tag", "dns-local"},
+            {"address", "local"},
+            {"detour", "direct"},
+        };
+
         // block
         if (!status->forTest)
             dnsServers += QJsonObject{
@@ -573,8 +580,14 @@ namespace NekoGui {
                 {"address", "rcode://success"},
             };
 
+        // serverAddress dns rule
+        dnsRules += QJsonObject{
+            {"outbound", "any"},
+            {"server", "dns-direct"},
+        };
+
         // Fakedns
-        if (dataStore->fake_dns && dataStore->spmode_vpn && !status->forTest) {
+        if (dataStore->routing->fake_dns && !status->forTest) {
             dnsServers += QJsonObject{
                 {"tag", "dns-fake"},
                 {"address", "fakeip"},
@@ -584,20 +597,11 @@ namespace NekoGui {
                 {"inet4_range", "198.18.0.0/15"},
                 {"inet6_range", "fc00::/18"},
             };
+            dnsRules += QJsonObject{
+                {"query_type", QJsonArray{"A", "AAAA"}},
+                {"server", "dns-fake"}};
+            dns["independent_cache"] = true;
         }
-
-        // Underlying 100% Working DNS
-        dnsServers += QJsonObject{
-            {"tag", "dns-local"},
-            {"address", "local"},
-            {"detour", "direct"},
-        };
-
-        // serverAddress dns rule
-        dnsRules += QJsonObject{
-            {"outbound", "any"},
-            {"server", "dns-direct"},
-        };
 
         // sing-box dns rule object
         auto add_rule_dns = [&](const QStringList &list, const QString &server) {
@@ -623,17 +627,8 @@ namespace NekoGui {
             };
         }
 
-        // fakedns rule
-        if (dataStore->fake_dns && dataStore->spmode_vpn && !status->forTest) {
-            dnsRules += QJsonObject{
-                {"inbound", "tun-in"},
-                {"server", "dns-fake"},
-            };
-        }
-
         dns["servers"] = dnsServers;
         dns["rules"] = dnsRules;
-        dns["independent_cache"] = true;
         dns["reverse_mapping"] = true;
 
         if (dataStore->routing->use_dns_object && !status->forTest) {
@@ -724,16 +719,14 @@ namespace NekoGui {
             auto custom_routeObj = QString2QJsonObject(dataStore->routing->custom);
             if (custom_routeObj.isEmpty()) {
                 routeObj = QJsonObject{
-                    {"auto_detect_interface", true},
                     {"rules", status->routingRules},
                     {"final", dataStore->routing->def_outbound},
                     {"geoip", QJsonObject{{"path", geoip}}},
                     {"geosite", QJsonObject{{"path", geosite}}}};
+                if (dataStore->spmode_vpn) routeObj["auto_detect_interface"] = true;
             } else {
                 routeObj = custom_routeObj;
             }
-        } else {
-            routeObj["auto_detect_interface"] = true;
         }
         if (status->forExport) {
             routeObj.remove("geoip");
@@ -800,7 +793,6 @@ namespace NekoGui {
                           .replace("%STRICT_ROUTE%", dataStore->vpn_strict_route ? "true" : "false")
                           .replace("%FINAL_OUT%", no_match_out)
                           .replace("%DNS_ADDRESS%", BOX_UNDERLYING_DNS)
-                          .replace("%FAKE_DNS_INBOUND%", dataStore->fake_dns ? "tun-in" : "empty")
                           .replace("%PORT%", Int2String(dataStore->inbound_socks_port));
         // hook.js
         auto source = qjs::ReadHookJS();

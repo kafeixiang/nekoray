@@ -106,20 +106,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="fake_dns">
-        <property name="text">
-         <string notr="true">FakeDNS</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QCheckBox" name="gso_enable">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enables Generic Segmentation offloading on the Tun device, Only supported on Linux&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -182,7 +168,7 @@
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -202,7 +188,7 @@
      <item>
       <widget class="QDialogButtonBox" name="buttonBox">
        <property name="standardButtons">
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+        <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
        </property>
       </widget>
      </item>
@@ -215,7 +201,6 @@
   <tabstop>vpn_mtu</tabstop>
   <tabstop>vpn_ipv6</tabstop>
   <tabstop>strict_route</tabstop>
-  <tabstop>fake_dns</tabstop>
   <tabstop>hide_console</tabstop>
   <tabstop>vpn_rule_cidr</tabstop>
   <tabstop>vpn_rule_process</tabstop>

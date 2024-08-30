@@ -50,10 +50,6 @@
                     "nekobox_core.exe"
                 ],
                 "server": "dns-direct"
-            },
-            {
-                "inbound": "%FAKE_DNS_INBOUND%",
-                "server": "dns-fake"
             }
         ]
     },
