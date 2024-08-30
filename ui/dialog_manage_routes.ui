@@ -279,7 +279,7 @@ For more information, see the document &quot;Configuration/DNS&quot;.</string>
               </item>
               <item>
                <property name="text">
-                <string notr="true">bypass</string>
+                <string notr="true">direct</string>
                </property>
               </item>
              </widget>
@@ -582,7 +582,7 @@ For more information, see the document &quot;Configuration/DNS&quot;.</string>
                  </item>
                  <item>
                   <property name="text">
-                   <string notr="true">bypass</string>
+                   <string notr="true">direct</string>
                   </property>
                  </item>
                  <item>

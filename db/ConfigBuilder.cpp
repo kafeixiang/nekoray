@@ -454,14 +454,10 @@ namespace NekoGui {
         auto tagProxy = BuildChain(0, status);
         if (!status->result->error.isEmpty()) return;
 
-        // direct & bypass & block
+        // direct & block
         status->outbounds += QJsonObject{
             {"type", "direct"},
             {"tag", "direct"},
-        };
-        status->outbounds += QJsonObject{
-            {"type", "direct"},
-            {"tag", "bypass"},
         };
         status->outbounds += QJsonObject{
             {"type", "block"},
@@ -564,7 +560,7 @@ namespace NekoGui {
             {"address", directDNSAddress.replace("+local://", "://")},
             {"detour", "direct"},
         };
-        if (dataStore->routing->dns_final_out == "bypass") {
+        if (dataStore->routing->dns_final_out == "direct") {
             dnsServers.prepend(directObj);
         } else {
             dnsServers.append(directObj);
@@ -673,10 +669,10 @@ namespace NekoGui {
         // final add user rule
         add_rule_route(status->domainListBlock, false, "block");
         add_rule_route(status->domainListRemote, false, tagProxy);
-        add_rule_route(status->domainListDirect, false, "bypass");
+        add_rule_route(status->domainListDirect, false, "direct");
         add_rule_route(status->ipListBlock, true, "block");
         add_rule_route(status->ipListRemote, true, tagProxy);
-        add_rule_route(status->ipListDirect, true, "bypass");
+        add_rule_route(status->ipListDirect, true, "direct");
 
         // built-in rules
         status->routingRules += QJsonObject{
@@ -690,7 +686,7 @@ namespace NekoGui {
 
         // tun user rule
         if (dataStore->spmode_vpn && !status->forTest) {
-            auto match_out = dataStore->vpn_rule_white ? "proxy" : "bypass";
+            auto match_out = dataStore->vpn_rule_white ? "proxy" : "direct";
 
             QString process_name_rule = dataStore->vpn_rule_process.trimmed();
             if (!process_name_rule.isEmpty()) {
@@ -710,7 +706,7 @@ namespace NekoGui {
 
             auto autoBypassExternalProcessPaths = getAutoBypassExternalProcessPaths(status->result);
             if (!autoBypassExternalProcessPaths.isEmpty()) {
-                QJsonObject rule{{"outbound", "bypass"},
+                QJsonObject rule{{"outbound", "direct"},
                                  {"process_name", QList2QJsonArray(autoBypassExternalProcessPaths)}};
                 status->routingRules += rule;
             }
