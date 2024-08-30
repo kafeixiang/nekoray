@@ -62,6 +62,8 @@ QStringList SplitLinesSkipSharp(const QString &_string, int maxLine = 0);
 
 QByteArray DecodeB64IfValid(const QString &input, QByteArray::Base64Options options = QByteArray::Base64Option::Base64Encoding);
 
+QByteArray DecodeBase64OrBase64Url(const QString &input);
+
 // URL
 
 class QUrlQuery;

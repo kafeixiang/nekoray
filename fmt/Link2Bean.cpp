@@ -4,14 +4,6 @@
 #include <QUrlQuery>
 
 namespace NekoGui_fmt {
-
-#define DECODE_V2RAY_N_1                                                                                                        \
-    QString linkN = DecodeB64IfValid(SubStrBefore(SubStrAfter(link, "://"), "#"), QByteArray::Base64Option::Base64UrlEncoding); \
-    if (linkN.isEmpty()) return false;                                                                                          \
-    auto hasRemarks = link.contains("#");                                                                                       \
-    if (hasRemarks) linkN += "#" + SubStrAfter(link, "#");                                                                      \
-    auto url = QUrl("https://" + linkN);
-
     bool SocksHttpBean::TryParseLink(const QString &link) {
         auto url = QUrl(link);
         if (!url.isValid()) return false;
@@ -42,30 +34,200 @@ namespace NekoGui_fmt {
         return !serverAddress.isEmpty();
     }
 
-    bool TrojanVLESSBean::TryParseLink(const QString &link) {
-        auto url = QUrl(link);
+    bool ShadowSocksBean::TryParseLink(const QString &link) {
+        QUrl url;
+        if (SubStrBefore(link, "#").contains("@")) {
+            url = QUrl(link);
+        } else if (SubStrBefore(link, "#").contains("?")) {
+            url = QUrl("ss://" + DecodeBase64OrBase64Url(SubStrBefore(SubStrAfter(link, "://"), "?")) + "?" + SubStrAfter(link, "?"));
+        } else if (link.contains("#")) {
+            url = QUrl("ss://" + DecodeBase64OrBase64Url(SubStrBefore(SubStrAfter(link, "://"), "#")) + "#" + SubStrAfter(link, "#"));
+        } else {
+            url = QUrl("ss://" + DecodeBase64OrBase64Url(SubStrAfter(link, "://")));
+        }
         if (!url.isValid()) return false;
-        auto query = GetQuery(url);
 
         name = url.fragment(QUrl::FullyDecoded);
         serverAddress = url.host();
         serverPort = url.port();
-        password = url.userName();
+
+        if (url.password().isEmpty()) {
+            // traditional format
+            auto method_password = DecodeBase64OrBase64Url(url.userName());
+            if (method_password.isEmpty()) return false;
+            method = SubStrBefore(method_password, ":");
+            password = SubStrAfter(method_password, ":");
+        } else {
+            // 2022 format
+            method = url.userName();
+            password = url.password();
+        }
+
+        auto query = GetQuery(url);
+        if (!query.queryItemValue("plugin").startsWith("none")) {
+            plugin = query.queryItemValue("plugin").replace("simple-obfs;", "obfs-local;");
+        }
+        auto mux_str = GetQueryValue(query, "mux", "");
+        if (mux_str == "true") {
+            mux_state = 1;
+        } else if (mux_str == "false") {
+            mux_state = 2;
+        }
+
+        // *ray misnomer
+        if (method == "chacha20-poly1305")
+            method = "chacha20-ietf-poly1305";
+        else if (method == "xchacha20-poly1305")
+            method = "xchacha20-ietf-poly1305";
+
+        return !(serverAddress.isEmpty() || method.isEmpty() || password.isEmpty());
+    }
+
+    bool ShadowSocksRBean::TryParseLink(const QString &link) {
+        QString decodedData = DecodeBase64OrBase64Url(SubStrAfter(link, "://"));
+        QStringList parts = decodedData.split(':');
+        if (parts.size() < 6)
+            return false;
+
+        serverAddress = parts[0];
+        serverPort = parts[1].toInt();
+        protocol = parts[2];
+        method = parts[3];
+        obfs = parts[4];
+        password = DecodeBase64OrBase64Url(parts[5].split("/")[0]);
+
+        auto query = GetQuery(QUrl("ssr://" + decodedData));
+        obfsParam = DecodeBase64OrBase64Url(query.queryItemValue("obfsparam"));
+        protocolParam = DecodeBase64OrBase64Url(query.queryItemValue("protoparam"));
+        name = DecodeBase64OrBase64Url(query.queryItemValue("remarks"));
+
+        return !serverAddress.isEmpty();
+    }
+
+    bool VMessBean::TryParseLink(const QString &link) {
+        if (!link.contains("?")) {
+            // V2RayN Format
+            auto objN = QString2QJsonObject(DecodeBase64OrBase64Url(SubStrAfter(link, "://")));
+            if (objN.isEmpty()) return false;
+            // REQUIRED
+            uuid = objN["id"].toString();
+            serverAddress = objN["add"].toString();
+            serverPort = objN["port"].toVariant().toInt();
+            // OPTIONAL
+            name = objN["ps"].toString();
+            aid = objN["aid"].toVariant().toInt();
+            stream->host = objN["host"].toString();
+            stream->path = objN["path"].toString();
+            stream->sni = objN["sni"].toString();
+            stream->header_type = objN["type"].toString();
+            auto net = objN["net"].toString();
+            if (!net.isEmpty()) {
+                if (net == "h2") net = "http";
+                stream->network = net;
+            }
+            auto scy = objN["scy"].toString();
+            if (!scy.isEmpty()) security = scy;
+            // TLS (XTLS?)
+            stream->security = objN["tls"].toString();
+            // TODO quic & kcp
+        } else {
+            auto url = SubStrBefore(link, "?").contains("@")
+                           ? QUrl(link)
+                           : QUrl("vmess://" + DecodeBase64OrBase64Url(SubStrBefore(SubStrAfter(link, "://"), "?")) + "?" + SubStrAfter(link, "?"));
+            if (!url.isValid()) return false;
+            auto query = GetQuery(url);
+
+            if (!url.password().isEmpty()) {
+                name = query.queryItemValue("remarks");
+                uuid = url.password();
+                security = url.userName();
+                stream->network = GetQueryValue(query, "obfs", "tcp").replace("websocket", "ws");
+                if (GetQueryValue(query, "tls") == "1") stream->security = "tls";
+            } else {
+                // https://github.com/XTLS/Xray-core/discussions/716
+                name = url.fragment(QUrl::FullyDecoded);
+                uuid = url.userName();
+                security = GetQueryValue(query, "encryption", "auto");
+                stream->network = GetQueryValue(query, "type", "tcp").replace("h2", "http");
+                stream->security = GetQueryValue(query, "security", "tls").replace("reality", "tls");
+            }
+            serverAddress = url.host();
+            serverPort = url.port();
+            if (serverPort == -1) serverPort = 443;
+            aid = GetQueryValue(query, "alterId", "0").toInt();
+
+            // security
+            auto sni1 = GetQueryValue(query, "sni");
+            auto sni2 = GetQueryValue(query, "peer");
+            if (!sni1.isEmpty()) stream->sni = sni1;
+            if (!sni2.isEmpty()) stream->sni = sni2;
+            if (!query.queryItemValue("allowInsecure").isEmpty()) stream->allow_insecure = true;
+            stream->reality_pbk = GetQueryValue(query, "pbk", "");
+            stream->reality_sid = GetQueryValue(query, "sid", "");
+            stream->reality_spx = GetQueryValue(query, "spx", "");
+            stream->utlsFingerprint = GetQueryValue(query, "fp", "");
+            if (stream->utlsFingerprint.isEmpty()) {
+                stream->utlsFingerprint = NekoGui::dataStore->utlsFingerprint;
+            }
+
+            // mux
+            auto mux_str = GetQueryValue(query, "mux", "");
+            if (mux_str == "true") {
+                mux_state = 1;
+            } else if (mux_str == "false") {
+                mux_state = 2;
+            }
+
+            // type
+            if (stream->network == "tcp") {
+                if (GetQueryValue(query, "headerType") == "http") {
+                    stream->header_type = "http";
+                    stream->path = GetQueryValue(query, "path", "");
+                    stream->host = GetQueryValue(query, "host", "");
+                }
+            } else if (stream->network == "http") {
+                stream->path = GetQueryValue(query, "path", "");
+                stream->host = GetQueryValue(query, "host", "").replace("|", ",");
+            } else if (stream->network == "httpupgrade") {
+                stream->path = GetQueryValue(query, "path", "");
+                stream->host = GetQueryValue(query, "host", "");
+            } else if (stream->network == "ws") {
+                stream->path = GetQueryValue(query, "path", "");
+                stream->host = GetQueryValue(query, "host", "");
+            } else if (stream->network == "grpc") {
+                stream->path = GetQueryValue(query, "serviceName", "");
+            }
+        }
+        return !(uuid.isEmpty() || serverAddress.isEmpty());
+    }
+
+    bool TrojanVLESSBean::TryParseLink(const QString &link) {
+        auto url = SubStrBefore(link, "?").contains("@")
+                       ? QUrl(link)
+                       : QUrl("url://" + DecodeBase64OrBase64Url(SubStrBefore(SubStrAfter(link, "://"), "?")) + "?" + SubStrAfter(link, "?"));
+        if (!url.isValid()) return false;
+        auto query = GetQuery(url);
+
+        if (!url.password().isEmpty()) {
+            name = query.queryItemValue("remarks");
+            password = url.password();
+            stream->network = GetQueryValue(query, "obfs", "tcp").replace("websocket", "ws");
+            if (GetQueryValue(query, "tls") == "1") stream->security = "tls";
+        } else {
+            name = url.fragment(QUrl::FullyDecoded);
+            password = url.userName();
+            stream->network = GetQueryValue(query, "type", "tcp").replace("h2", "http");
+            if (proxy_type == proxy_Trojan) {
+                stream->security = GetQueryValue(query, "security", "tls").replace("reality", "tls").replace("none", "");
+            } else {
+                stream->security = GetQueryValue(query, "security", "").replace("reality", "tls").replace("none", "");
+            }
+        }
+        serverAddress = url.host();
+        serverPort = url.port();
         if (serverPort == -1) serverPort = 443;
 
         // security
-
-        auto type = GetQueryValue(query, "type", "tcp");
-        if (type == "h2") {
-            type = "http";
-        }
-        stream->network = type;
-
-        if (proxy_type == proxy_Trojan) {
-            stream->security = GetQueryValue(query, "security", "tls").replace("reality", "tls").replace("none", "");
-        } else {
-            stream->security = GetQueryValue(query, "security", "").replace("reality", "tls").replace("none", "");
-        }
         auto sni1 = GetQueryValue(query, "sni");
         auto sni2 = GetQueryValue(query, "peer");
         if (!sni1.isEmpty()) stream->sni = sni1;
@@ -95,8 +257,8 @@ namespace NekoGui_fmt {
         } else if (stream->network == "tcp") {
             if (GetQueryValue(query, "headerType") == "http") {
                 stream->header_type = "http";
-                stream->host = GetQueryValue(query, "host", "");
                 stream->path = GetQueryValue(query, "path", "");
+                stream->host = GetQueryValue(query, "host", "");
             }
         }
 
@@ -110,176 +272,11 @@ namespace NekoGui_fmt {
 
         // protocol
         if (proxy_type == proxy_VLESS) {
-            flow = GetQueryValue(query, "flow", "");
+            if (GetQueryValue(query, "flow") == "xtls-rprx-vision" || GetQueryValue(query, "xtls") == "2")
+                flow = "xtls-rprx-vision";
         }
 
         return !(password.isEmpty() || serverAddress.isEmpty());
-    }
-
-    bool ShadowSocksBean::TryParseLink(const QString &link) {
-        if (SubStrBefore(link, "#").contains("@")) {
-            // SS
-            auto url = QUrl(link);
-            if (!url.isValid()) return false;
-
-            name = url.fragment(QUrl::FullyDecoded);
-            serverAddress = url.host();
-            serverPort = url.port();
-
-            if (url.password().isEmpty()) {
-                // traditional format
-                auto method_password = DecodeB64IfValid(url.userName(), QByteArray::Base64Option::Base64UrlEncoding);
-                if (method_password.isEmpty()) return false;
-                method = SubStrBefore(method_password, ":");
-                password = SubStrAfter(method_password, ":");
-            } else {
-                // 2022 format
-                method = url.userName();
-                password = url.password();
-            }
-
-            auto query = GetQuery(url);
-            if (!query.queryItemValue("plugin").startsWith("none")) {
-                plugin = query.queryItemValue("plugin").replace("simple-obfs;", "obfs-local;");
-            }
-            auto mux_str = GetQueryValue(query, "mux", "");
-            if (mux_str == "true") {
-                mux_state = 1;
-            } else if (mux_str == "false") {
-                mux_state = 2;
-            }
-
-        } else {
-            // v2rayN
-            DECODE_V2RAY_N_1
-
-            if (hasRemarks) name = url.fragment(QUrl::FullyDecoded);
-            serverAddress = url.host();
-            serverPort = url.port();
-            method = url.userName();
-            password = url.password();
-        }
-        return !(serverAddress.isEmpty() || method.isEmpty() || password.isEmpty());
-    }
-
-    bool ShadowSocksRBean::TryParseLink(const QString &link) {
-        QString decodedData = DecodeB64IfValid(link.mid(6).replace("-", "+").replace("_", "/"), QByteArray::Base64Option::Base64Encoding);
-
-        QStringList parts = decodedData.split(':');
-        if (parts.size() < 6)
-            return false;
-
-        serverAddress = parts[0];
-        serverPort = parts[1].toInt();
-        protocol = parts[2];
-        method = parts[3];
-        obfs = parts[4];
-        password = DecodeB64IfValid(parts[5].split("/")[0].replace("-", "+").replace("_", "/"), QByteArray::Base64Option::Base64Encoding);
-
-        auto query = GetQuery(QUrl("ssr://" + decodedData));
-        obfsParam = DecodeB64IfValid(query.queryItemValue("obfsparam").replace("-", "+").replace("_", "/"), QByteArray::Base64Option::Base64Encoding);
-        protocolParam = DecodeB64IfValid(query.queryItemValue("protoparam").replace("-", "+").replace("_", "/"), QByteArray::Base64Option::Base64Encoding);
-        name = DecodeB64IfValid(query.queryItemValue("remarks").replace("-", "+").replace("_", "/"), QByteArray::Base64Option::Base64Encoding);
-
-        return !serverAddress.isEmpty();
-    }
-
-    bool VMessBean::TryParseLink(const QString &link) {
-        // V2RayN Format
-        auto linkN = DecodeB64IfValid(SubStrAfter(link, "vmess://"));
-        if (!linkN.isEmpty()) {
-            auto objN = QString2QJsonObject(linkN);
-            if (objN.isEmpty()) return false;
-            // REQUIRED
-            uuid = objN["id"].toString();
-            serverAddress = objN["add"].toString();
-            serverPort = objN["port"].toVariant().toInt();
-            // OPTIONAL
-            name = objN["ps"].toString();
-            aid = objN["aid"].toVariant().toInt();
-            stream->host = objN["host"].toString();
-            stream->path = objN["path"].toString();
-            stream->sni = objN["sni"].toString();
-            stream->header_type = objN["type"].toString();
-            auto net = objN["net"].toString();
-            if (!net.isEmpty()) {
-                if (net == "h2") {
-                    net = "http";
-                }
-                stream->network = net;
-            }
-            auto scy = objN["scy"].toString();
-            if (!scy.isEmpty()) security = scy;
-            // TLS (XTLS?)
-            stream->security = objN["tls"].toString();
-            // TODO quic & kcp
-            return true;
-        } else {
-            // https://github.com/XTLS/Xray-core/discussions/716
-            auto url = QUrl(link);
-            if (!url.isValid()) return false;
-            auto query = GetQuery(url);
-
-            name = url.fragment(QUrl::FullyDecoded);
-            serverAddress = url.host();
-            serverPort = url.port();
-            uuid = url.userName();
-            if (serverPort == -1) serverPort = 443;
-
-            aid = 0; // “此分享标准仅针对 VMess AEAD 和 VLESS。”
-            security = GetQueryValue(query, "encryption", "auto");
-
-            // security
-            auto type = GetQueryValue(query, "type", "tcp");
-            if (type == "h2") {
-                type = "http";
-            }
-            stream->network = type;
-            stream->security = GetQueryValue(query, "security", "tls").replace("reality", "tls");
-            auto sni1 = GetQueryValue(query, "sni");
-            auto sni2 = GetQueryValue(query, "peer");
-            if (!sni1.isEmpty()) stream->sni = sni1;
-            if (!sni2.isEmpty()) stream->sni = sni2;
-            if (!query.queryItemValue("allowInsecure").isEmpty()) stream->allow_insecure = true;
-            stream->reality_pbk = GetQueryValue(query, "pbk", "");
-            stream->reality_sid = GetQueryValue(query, "sid", "");
-            stream->reality_spx = GetQueryValue(query, "spx", "");
-            stream->utlsFingerprint = GetQueryValue(query, "fp", "");
-            if (stream->utlsFingerprint.isEmpty()) {
-                stream->utlsFingerprint = NekoGui::dataStore->utlsFingerprint;
-            }
-
-            // mux
-            auto mux_str = GetQueryValue(query, "mux", "");
-            if (mux_str == "true") {
-                mux_state = 1;
-            } else if (mux_str == "false") {
-                mux_state = 2;
-            }
-
-            // type
-            if (stream->network == "ws") {
-                stream->path = GetQueryValue(query, "path", "");
-                stream->host = GetQueryValue(query, "host", "");
-            } else if (stream->network == "http") {
-                stream->path = GetQueryValue(query, "path", "");
-                stream->host = GetQueryValue(query, "host", "").replace("|", ",");
-            } else if (stream->network == "httpupgrade") {
-                stream->path = GetQueryValue(query, "path", "");
-                stream->host = GetQueryValue(query, "host", "");
-            } else if (stream->network == "grpc") {
-                stream->path = GetQueryValue(query, "serviceName", "");
-            } else if (stream->network == "tcp") {
-                if (GetQueryValue(query, "headerType") == "http") {
-                    stream->header_type = "http";
-                    stream->path = GetQueryValue(query, "path", "");
-                    stream->host = GetQueryValue(query, "host", "");
-                }
-            }
-            return !(uuid.isEmpty() || serverAddress.isEmpty());
-        }
-
-        return false;
     }
 
     bool NaiveBean::TryParseLink(const QString &link) {
@@ -365,8 +362,7 @@ namespace NekoGui_fmt {
 
             sni = query.queryItemValue("sni");
         }
-
-        return true;
+        return !serverAddress.isEmpty();
     }
 
     bool SSHBean::TryParseLink(const QString &link) {
@@ -386,7 +382,7 @@ namespace NekoGui_fmt {
         hostKeyAlgorithms = query.queryItemValue("host_key_algorithms");
         clientVersion = query.queryItemValue("client_version");
 
-        return true;
+        return !serverAddress.isEmpty();
     }
 
     bool WireGuardBean::TryParseLink(const QString &link) {
@@ -405,7 +401,7 @@ namespace NekoGui_fmt {
         MTU = query.queryItemValue("mtu").toInt();
         useSystemInterface = query.queryItemValue("use_system_interface") == "true";
 
-        return true;
+        return !serverAddress.isEmpty();
     }
 
 } // namespace NekoGui_fmt

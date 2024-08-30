@@ -53,6 +53,10 @@ QByteArray DecodeB64IfValid(const QString &input, QByteArray::Base64Options opti
     return {};
 }
 
+QByteArray DecodeBase64OrBase64Url(const QString &input) {
+    return QByteArray::fromBase64(QString(input).replace("-", "+").replace("_", "/").toUtf8());
+}
+
 QString QStringList2Command(const QStringList &list) {
     QStringList new_list;
     for (auto str: list) {
