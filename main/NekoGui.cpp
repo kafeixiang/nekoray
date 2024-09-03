@@ -316,11 +316,7 @@ namespace NekoGui {
         if (isDefault) {
             QString version = SubStrBefore(NKR_VERSION, "-");
             if (!version.contains(".")) version = "2.0";
-            if (IS_NEKO_BOX) {
-                return "NekoBox/PC/" + version + " (Prefer ClashMeta Format)";
-            } else {
-                return "NekoRay/PC/" + version + " (Prefer ClashMeta Format)";
-            }
+            return "NekoBox/PC/" + version + " (Prefer ClashMeta Format)";
         }
         return user_agent;
     }
@@ -341,10 +337,10 @@ namespace NekoGui {
                 "domain:firebase.io\n"
                 "domain:crashlytics.com\n";
         }
-        if (IS_NEKO_BOX) {
-            if (!Preset::SingBox::DomainStrategy.contains(domain_strategy)) domain_strategy = "";
-            if (!Preset::SingBox::DomainStrategy.contains(outbound_domain_strategy)) outbound_domain_strategy = "";
-        }
+
+        if (!Preset::SingBox::DomainStrategy.contains(domain_strategy)) domain_strategy = "";
+        if (!Preset::SingBox::DomainStrategy.contains(outbound_domain_strategy)) outbound_domain_strategy = "";
+
         _add(new configItem("direct_ip", &this->direct_ip, itemType::string));
         _add(new configItem("direct_domain", &this->direct_domain, itemType::string));
         _add(new configItem("proxy_ip", &this->proxy_ip, itemType::string));
@@ -439,12 +435,8 @@ namespace NekoGui {
         search << QApplication::applicationDirPath();
         search << "/usr/share/sing-geoip";
         search << "/usr/share/sing-geosite";
-        search << "/usr/share/xray";
-        search << "/usr/local/share/xray";
-        search << "/opt/xray";
-        search << "/usr/share/v2ray";
-        search << "/usr/local/share/v2ray";
-        search << "/opt/v2ray";
+        search << "/usr/lib/nekobox";
+        search << "/usr/share/nekobox";
         for (const auto &dir: search) {
             if (dir.isEmpty()) continue;
             QFileInfo asset(dir + "/" + name);

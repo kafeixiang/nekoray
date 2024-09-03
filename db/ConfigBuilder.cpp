@@ -8,8 +8,7 @@
 #include <QFile>
 #include <QFileInfo>
 
-#define BOX_UNDERLYING_DNS dataStore->core_box_underlying_dns.isEmpty() ? "underlying://0.0.0.0" : dataStore->core_box_underlying_dns
-#define BOX_UNDERLYING_DNS_EXPORT dataStore->core_box_underlying_dns.isEmpty() ? (status->forExport ? "local" : "underlying://0.0.0.0") : dataStore->core_box_underlying_dns
+#define BOX_UNDERLYING_DNS dataStore->core_box_underlying_dns.isEmpty() ? "local" : dataStore->core_box_underlying_dns
 
 namespace NekoGui {
 
@@ -552,7 +551,6 @@ namespace NekoGui {
 
         // Direct
         auto directDNSAddress = dataStore->routing->direct_dns;
-        if (directDNSAddress == "localhost") directDNSAddress = BOX_UNDERLYING_DNS_EXPORT;
         QJsonObject directObj{
             {"tag", "dns-direct"},
             {"address_resolver", "dns-local"},
@@ -569,7 +567,7 @@ namespace NekoGui {
         // Underlying 100% Working DNS
         dnsServers += QJsonObject{
             {"tag", "dns-local"},
-            {"address", "local"},
+            {"address", BOX_UNDERLYING_DNS},
             {"detour", "direct"},
         };
 

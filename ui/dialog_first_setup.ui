@@ -36,14 +36,6 @@ These settings can be changed later.</string>
      </property>
     </widget>
    </item>
-   <item>
-    <widget class="QPushButton" name="v2ray">
-     <property name="text">
-      <string notr="true">Xray</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QPushButton" name="singbox">
      <property name="text">
       <string notr="true">sing-box</string>

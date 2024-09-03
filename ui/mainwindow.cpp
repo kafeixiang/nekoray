@@ -95,17 +95,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     }
 
     // software_name
-    if (IS_NEKO_BOX) {
-        software_name = "NekoBox";
-        software_core_name = "sing-box";
-        // replace default values
-        if (NekoGui::dataStore->log_level == "warning") NekoGui::dataStore->log_level = "info";
-        if (NekoGui::dataStore->mux_protocol.isEmpty()) NekoGui::dataStore->mux_protocol = "h2mux";
-        //
-        if (QDir("dashboard").count() == 0) {
-            QDir().mkdir("dashboard");
-            QFile::copy(":/neko/dashboard-notice.html", "dashboard/index.html");
-        }
+    software_name = "NekoBox";
+    software_core_name = "sing-box";
+    // replace default values
+    if (NekoGui::dataStore->log_level == "warning") NekoGui::dataStore->log_level = "info";
+    if (NekoGui::dataStore->mux_protocol.isEmpty()) NekoGui::dataStore->mux_protocol = "h2mux";
+    //
+    if (QDir("dashboard").count() == 0) {
+        QDir().mkdir("dashboard");
+        QFile::copy(":/neko/dashboard-notice.html", "dashboard/index.html");
     }
 
     // top bar
@@ -398,10 +396,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     if (NekoGui::dataStore->core_port <= 0) NekoGui::dataStore->core_port = 19810;
 
     auto core_path = QApplication::applicationDirPath() + "/";
-    core_path += IS_NEKO_BOX ? "nekobox_core" : "nekoray_core";
+    core_path += "nekobox_core";
 
     QStringList args;
-    args.push_back(IS_NEKO_BOX ? "nekobox" : "nekoray");
+    args.push_back("nekobox");
     args.push_back("-port");
     args.push_back(Int2String(NekoGui::dataStore->core_port));
     if (NekoGui::dataStore->flag_debug) args.push_back("-debug");
