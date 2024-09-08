@@ -4,7 +4,7 @@ project(nekoray VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find Qt
@@ -68,7 +68,7 @@ include("cmake/myproto.cmake")
 list(APPEND NKR_EXTERNAL_TARGETS myproto)
 
 find_package(yaml-cpp CONFIG REQUIRED) # only Release is built
-list(APPEND NKR_EXTERNAL_TARGETS yaml-cpp)
+list(APPEND NKR_EXTERNAL_TARGETS yaml-cpp::yaml-cpp)
 
 find_package(ZXing CONFIG REQUIRED)
 list(APPEND NKR_EXTERNAL_TARGETS ZXing::ZXing)

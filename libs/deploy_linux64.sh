@@ -8,7 +8,7 @@ else
 fi
 
 source libs/env_deploy.sh
-DEST=$DEPLOYMENT/linux64
+DEST=$DEPLOYMENT/linux-amd64
 rm -rf $DEST
 mkdir -p $DEST
 
@@ -24,6 +24,7 @@ tar xvzf artifacts.tgz -C ../../
 cd ../..
 
 mv $DEPLOYMENT/public_res/* $DEST
+rmdir $DEPLOYMENT/public_res
 
 sudo add-apt-repository universe
 sudo apt install libfuse2

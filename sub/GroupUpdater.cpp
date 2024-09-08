@@ -275,11 +275,10 @@ namespace NekoGui_sub {
         } catch (const YAML::Exception &ex) {
             try {
                 return n.as<int>();
-            } catch (const YAML::Exception &ex2) {
-                ex2.what();
+            } catch (const YAML::Exception &) {
+                qDebug() << ex.what();
+                return def;
             }
-            qDebug() << ex.what();
-            return def;
         }
     }
 
