@@ -27,8 +27,8 @@ clean() {
   rm -rf dl.zip yaml-* zxing-* protobuf
 }
 
-#### ZXing v2.0.0 ####
-curl -L -o dl.zip https://github.com/nu-book/zxing-cpp/archive/refs/tags/v2.0.0.zip
+#### ZXing ####
+curl -L -o dl.zip https://codeload.github.com/zxing-cpp/zxing-cpp/zip/refs/heads/master
 unzip dl.zip
 
 cd zxing-*
@@ -41,7 +41,7 @@ ninja && ninja install
 cd ../..
 
 #### yaml-cpp ####
-curl -L -o dl.zip https://github.com/jbeder/yaml-cpp/archive/refs/tags/yaml-cpp-0.7.0.zip
+curl -L -o dl.zip https://codeload.github.com/jbeder/yaml-cpp/zip/refs/heads/master
 unzip dl.zip
 
 cd yaml-*
@@ -54,7 +54,7 @@ ninja && ninja install
 cd ../..
 
 #### protobuf ####
-git clone --recurse-submodules -b v21.4 --depth 1 --shallow-submodules https://github.com/protocolbuffers/protobuf
+git clone --recurse-submodules --depth 1 --shallow-submodules https://github.com/protocolbuffers/protobuf
 
 #备注：交叉编译要在 host 也安装 protobuf 并且版本一致,编译安装，同参数，安装到 /usr/local
 
@@ -62,6 +62,7 @@ mkdir -p protobuf/build
 cd protobuf/build
 
 $cmake .. -GNinja \
+  -DCMAKE_CXX_STANDARD=23 \
   -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_SHARED_LIBS=OFF \
   -Dprotobuf_MSVC_STATIC_RUNTIME=OFF \

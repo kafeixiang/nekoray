@@ -21,8 +21,9 @@ cd *public_res
 tar xvzf artifacts.tgz -C ../../
 cd ../..
 
-mv deployment/public_res/* deployment/macos-$ARCH
-mv deployment/macos-$ARCH/* $BUILD/nekoray.app/Contents/MacOS
+mv $DEPLOYMENT/public_res/* $DEST
+rmdir $DEPLOYMENT/public_res
+mv $DEST/* $BUILD/nekoray.app/Contents/MacOS
 
 #### deploy qt & DLL runtime => .app ####
 pushd $BUILD

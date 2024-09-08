@@ -1341,7 +1341,7 @@ void MainWindow::on_menu_scan_qr_triggered() {
 
     show();
 
-    auto hints = DecodeHints()
+    auto hints = ReaderOptions()
                      .setFormats(BarcodeFormat::QRCode)
                      .setTryRotate(false)
                      .setBinarizer(Binarizer::FixedThreshold);

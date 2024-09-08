@@ -14,9 +14,9 @@ void QtExtKeySequenceEdit::keyPressEvent(QKeyEvent *pEvent) {
     if (keySeq.count() <= 0) {
         return;
     }
-    int key = keySeq[0];
-    if (key == Qt::Key_Backspace || key == Qt::Key_Delete) {
-        key = 0;
+    QKeyCombination key(keySeq[0]);
+    if (key == QKeyCombination(Qt::Key_Backspace) || key == QKeyCombination(Qt::Key_Delete)) {
+        key = QKeyCombination();
     }
     setKeySequence(key);
 }

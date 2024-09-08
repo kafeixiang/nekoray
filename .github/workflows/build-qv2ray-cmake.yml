@@ -5,13 +5,13 @@ on:
     inputs:
       tag:
         description: 'Release Tag'
-        required: true
-      publish:
-        description: 'Publish: If want ignore, input y'
         required: false
       artifact-pack:
-        description: 'artifact-pack: If want ignore, input y'
+        description: 'Whether to pack(y/n)'
         required: false
+  push:
+    branches:
+      - main
 jobs:
   build-go:
     strategy:
@@ -21,8 +21,6 @@ jobs:
         include:
           - cross_os: public_res
             cross_arch: public_res
-          # - cross_os: windows7
-          #   cross_arch: amd64
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
@@ -34,13 +32,13 @@ jobs:
           repository: 'Restia-Ashbell/sing-box'
           path: CORE
       - name: Go Status
-        run: git ls-files go | xargs cat | sha1sum > go_status
+        run: cd CORE && git ls-files | xargs cat | sha1sum > go_status
       - name: Cache Common Download
         id: cache-common
         uses: actions/cache@v4
         with:
           path: artifacts.tgz
-          key: CommonCache-${{ matrix.cross_os }}-${{ matrix.cross_arch }}-${{ hashFiles('libs/*.sh', 'go_status', '*.txt') }}
+          key: CommonCache-${{ matrix.cross_os }}-${{ matrix.cross_arch }}-${{ hashFiles('.github/workflows/*', 'libs/*.sh', 'go_status', '*.txt') }}
       - name: Install Golang
         if: steps.cache-common.outputs.cache-hit != 'true' && matrix.cross_os != 'windows7'
         uses: actions/setup-go@v5
@@ -72,10 +70,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - platform: windows-2022
+          - platform: windows-latest
             arch: amd64
             qt_version: "6.7.2"
-          - platform: ubuntu-22.04
+          - platform: ubuntu-latest
             arch: amd64
             qt_version: "6.7.2"
           - platform: macos-13
@@ -94,34 +92,14 @@ jobs:
         with:
           submodules: "recursive"
       - name: Install MSVC compiler
-        if: matrix.platform == 'windows-2022'
+        if: matrix.platform == 'windows-latest'
         uses: ilammy/msvc-dev-cmd@v1
-        with:
-          toolset: 14.2
-          arch: ${{ matrix.arch }}
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
           path: download-artifact
       # ========================================================================================================= Qt Install
-      - name: Linux - Install Qt
-        if: matrix.platform == 'ubuntu-22.04'
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: ${{ matrix.qt_version }}
-          setup-python: true
-          cache: true
-          cache-key-prefix: QtCache-${{ matrix.platform }}-${{ matrix.arch }}
-      - name: macOS - Install Qt
-        if: matrix.platform == 'macos-13' || matrix.platform == 'macos-14'
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: ${{ matrix.qt_version }}
-          setup-python: true
-          cache: true
-          cache-key-prefix: QtCache-${{ matrix.platform }}-${{ matrix.arch }}
-      - name: Windows - Install Qt
-        if: matrix.platform == 'windows-2022'
+      - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
           version: ${{ matrix.qt_version }}
@@ -144,20 +122,20 @@ jobs:
       # ========================================================================================================= Generate MakeFile and Build
       - name: Windows - Generate MakeFile and Build
         shell: bash
-        if: matrix.platform == 'windows-2022'
+        if: matrix.platform == 'windows-latest'
         env:
           CC: cl.exe
           CXX: cl.exe
         run: |
           mkdir build
-          cd build
+          pushd build 
           cmake -GNinja -DQT_VERSION_MAJOR=6 -DCMAKE_BUILD_TYPE=Release ..
-          ninja -j2
-          cd ..
+          ninja
+          popd 
           ./libs/deploy_windows64.sh
       - name: Linux - Generate MakeFile and Build
         shell: bash
-        if: matrix.platform == 'ubuntu-22.04'
+        if: matrix.platform == 'ubuntu-latest'
         run: |
           sudo apt update && sudo apt upgrade -y
           mkdir build 
@@ -171,10 +149,10 @@ jobs:
         if: matrix.platform == 'macos-13' || matrix.platform == 'macos-14'
         run: |
           mkdir build
-          cd build
+          pushd build 
           cmake -GNinja -DQT_VERSION_MAJOR=6 -DCMAKE_BUILD_TYPE=Release -DNKR_PACKAGE_MACOS=1 ..
           ninja
-          cd ..
+          popd 
           ./libs/deploy_macos.sh
       # ========================================================================================================= Deployments
       - name: Tar files
@@ -187,7 +165,7 @@ jobs:
           path: artifacts.tgz
   publish:
     name: Pack & Publish Release
-    if: github.event.inputs.artifact-pack != 'y'
+    if: github.event.inputs.artifact-pack == 'y'
     runs-on: ubuntu-latest
     needs:
       - build-cpp
@@ -203,49 +181,28 @@ jobs:
           curl -Lo - https://github.com/tcnksm/ghr/releases/download/v0.16.2/ghr_v0.16.2_linux_amd64.tar.gz | tar xzv
           mv ghr*linux_amd64/ghr .
           source libs/env_deploy.sh
+          COMMIT_HASH=$(git rev-parse --short HEAD)
           find . -name artifacts.tgz | xargs -n1 tar xvzf
           cd deployment
-          rm -rf *.pdb
           ####
-          mv linux64 nekoray
-          zip -r $version_standalone-linux64.zip nekoray
+          mv windows-amd64 nekoray
+          zip -r nekoray-$COMMIT_HASH-windows-amd64.zip nekoray
           rm -rf nekoray
           ####
-          # mv windows7 nekoray
-          # zip -r $version_standalone-windows7.zip nekoray
-          # rm -rf nekoray
-          ####
-          mv windows64 nekoray
-          zip -r $version_standalone-windows64.zip nekoray
+          mv linux-amd64 nekoray
+          zip -r nekoray-$COMMIT_HASH-linux-amd64.zip nekoray
           rm -rf nekoray
           ####
-          mv macos-arm64/nekoray.dmg $version_standalone-macos-arm64.dmg
-          rm -rf macos-arm64/nekoray.dmg
+          mv macos-amd64/nekoray.dmg nekoray-$COMMIT_HASH-macos-amd64.dmg
+          mv macos-arm64/nekoray.dmg nekoray-$COMMIT_HASH-macos-arm64.dmg
           ####
-          mv macos-amd64/nekoray.dmg $version_standalone-macos-amd64.dmg
-          rm -rf macos-amd64/nekoray.dmg
-      - name: Clean Up
-        run: |
-          cd deployment
-          rm -rf windows-arm64
-          rm -rf linux-arm64
-          rm -rf linux64
-          rm -rf windows64
-          rm -rf windows7
-          rm -rf macos-amd64
-          rm -rf macos-arm64
-          rm -rf public_res
-          rm -rf *.pdb
+          find . -mindepth 1 -maxdepth 1 ! -name '*.zip' ! -name '*.dmg' -exec rm -rf {} +
       - name: Uploading Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Deployment-${{ github.sha }}
           path: deployment
-      - name: PreRelease
-        if: github.event.inputs.publish == 'p'
-        run: |
-          ./ghr -prerelease -delete -t "${{ github.token }}" -n "${{ github.event.inputs.tag }}" "${{ github.event.inputs.tag }}" deployment
       - name: Release
-        if: github.event.inputs.publish == ''
+        if: github.event.inputs.publish != ''
         run: |
           ./ghr -delete -t "${{ github.token }}" -n "${{ github.event.inputs.tag }}" "${{ github.event.inputs.tag }}" deployment

@@ -1,6 +1,10 @@
 # Release
-file(STRINGS nekoray_version.txt NKR_VERSION)
-add_compile_definitions(NKR_VERSION=\"${NKR_VERSION}\")
+execute_process(
+    COMMAND git rev-parse --short HEAD
+    OUTPUT_VARIABLE GIT_COMMIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+add_compile_definitions(NKR_VERSION="${GIT_COMMIT_HASH}")
 
 # Debug
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DNKR_CPP_DEBUG")
