@@ -38,7 +38,7 @@ namespace NekoGui {
                 auto v = custom[key];
                 auto v_orig = outbound[key];
                 if (v.isObject() && v_orig.isObject()) { // isObject 则合并？
-                    auto vo = v.toObject();
+                    QJsonObject vo = v.toObject();
                     QJsonObject vo_orig = v_orig.toObject();
                     MergeJson(vo, vo_orig);
                     outbound[key] = vo_orig;
@@ -367,7 +367,7 @@ namespace NekoGui {
             }
 
             // apply custom outbound settings
-            MergeJson(QString2QJsonObject(ent->bean->custom_outbound), outbound);
+            // MergeJson(QString2QJsonObject(ent->bean->custom_outbound), outbound);
 
             // Bypass Lookup for the first profile
             auto serverAddress = ent->bean->serverAddress;
@@ -379,6 +379,12 @@ namespace NekoGui {
             }
 
             status->outbounds += outbound;
+            if (!status->forTest) {
+                QJsonObject customOutboundObj = QString2QJsonObject(ent->bean->custom_outbound);
+                if (!customOutboundObj.isEmpty()) {
+                    status->outbounds += customOutboundObj;
+                }
+            }
             pastTag = tagOut;
             pastExternalStat = thisExternalStat;
             index++;
