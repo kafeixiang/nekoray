@@ -147,13 +147,13 @@ namespace NekoGui {
         QString active_routing = "Default";
 
         // VPN
-        bool enable_gso = false;
-        int vpn_implementation = 0;
+        QString vpn_implementation;
         int vpn_mtu = 9000;
         bool vpn_ipv6 = false;
         bool vpn_hide_console = true;
         bool vpn_strict_route = false;
         bool vpn_rule_white = false;
+        bool enable_gso = false;
         QString vpn_rule_process = "";
         QString vpn_rule_cidr = "";
 
