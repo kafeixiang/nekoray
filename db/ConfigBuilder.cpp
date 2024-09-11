@@ -433,7 +433,7 @@ namespace NekoGui {
             inboundObj["auto_route"] = true;
             inboundObj["endpoint_independent_nat"] = true;
             inboundObj["mtu"] = dataStore->vpn_mtu;
-            inboundObj["stack"] = Preset::SingBox::VpnImplementation.value(dataStore->vpn_implementation);
+            inboundObj["stack"] = dataStore->vpn_implementation;
             inboundObj["strict_route"] = dataStore->vpn_strict_route;
             inboundObj["gso"] = dataStore->enable_gso;
             inboundObj["address"] = dataStore->vpn_ipv6 ? QJsonArray{"172.18.0.1/30", "fdfe:dcba:9876::1/126"} : QJsonArray{"172.18.0.1/30"};
@@ -792,7 +792,7 @@ namespace NekoGui {
                           .replace("//%PROCESS_NAME_RULE%", process_name_rule)
                           .replace("//%CIDR_RULE%", cidr_rule)
                           .replace("%MTU%", Int2String(dataStore->vpn_mtu))
-                          .replace("%STACK%", Preset::SingBox::VpnImplementation.value(dataStore->vpn_implementation))
+                          .replace("%STACK%", dataStore->vpn_implementation)
                           .replace("%TUN_NAME%", genTunName())
                           .replace("%STRICT_ROUTE%", dataStore->vpn_strict_route ? "true" : "false")
                           .replace("%FINAL_OUT%", no_match_out)
