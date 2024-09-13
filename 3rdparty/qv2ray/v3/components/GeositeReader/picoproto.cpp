@@ -281,15 +281,15 @@ namespace picoproto {
 
     int32_t Message::GetInt32(int32_t number) {
         Field *field = GetFieldAndCheckType(number, FIELD_UINT32);
-        uint32_t first_value = (*(field->value.v_uint32))[0];
-        int32_t zig_zag_decoded = static_cast<int32_t>((first_value >> 1) ^ (-(first_value & 1)));
+        int32_t first_value = static_cast<int32_t>((*(field->value.v_uint32))[0]);
+        int32_t zig_zag_decoded = (first_value >> 1) ^ (-(first_value & 1));
         return zig_zag_decoded;
     }
 
     int64_t Message::GetInt64(int32_t number) {
         Field *field = GetFieldAndCheckType(number, FIELD_UINT64);
-        uint64_t first_value = (*(field->value.v_uint64))[0];
-        int64_t zig_zag_decoded = static_cast<int64_t>((first_value >> 1) ^ (-(first_value & 1)));
+        int64_t first_value = static_cast<int64_t>((*(field->value.v_uint64))[0]);
+        int64_t zig_zag_decoded = (first_value >> 1) ^ (-(first_value & 1));
         return zig_zag_decoded;
     }
 
@@ -370,7 +370,8 @@ namespace picoproto {
         std::vector<int32_t> result;
         result.reserve(raw_array.size());
         for (uint64_t raw_value: raw_array) {
-            int32_t zig_zag_decoded = static_cast<int32_t>((raw_value >> 1) ^ (-(raw_value & 1)));
+            int32_t signed_value = static_cast<int32_t>(raw_value);
+            int32_t zig_zag_decoded = (signed_value >> 1) ^ (-(signed_value & 1));
             result.push_back(zig_zag_decoded);
         }
         return result;
@@ -381,7 +382,8 @@ namespace picoproto {
         std::vector<int64_t> result;
         result.reserve(raw_array.size());
         for (uint64_t raw_value: raw_array) {
-            int64_t zig_zag_decoded = static_cast<int64_t>((raw_value >> 1) ^ (-(raw_value & 1)));
+            int64_t signed_value = static_cast<int64_t>(raw_value);
+            int64_t zig_zag_decoded = (signed_value >> 1) ^ (-(signed_value & 1));
             result.push_back(zig_zag_decoded);
         }
         return result;
