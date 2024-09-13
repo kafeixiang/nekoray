@@ -110,6 +110,7 @@ namespace NekoGui {
         QString theme = "0";
         QString v2ray_asset_dir = "";
         int language = 0;
+        QString font = "";
         QString mw_size = "";
         bool check_include_pre = false;
         QString system_proxy_format = "";
