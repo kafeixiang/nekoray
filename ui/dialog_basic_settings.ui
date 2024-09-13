@@ -39,7 +39,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>5</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_1">
       <attribute name="title">
@@ -277,12 +277,6 @@
            <layout class="QHBoxLayout" name="horizontalLayout_4">
             <item>
              <widget class="QLabel" name="label_8">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
               <property name="text">
                <string>Theme</string>
               </property>
@@ -333,12 +327,6 @@
            <layout class="QHBoxLayout" name="horizontalLayout_7">
             <item>
              <widget class="QLabel" name="label_15">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
               <property name="text">
                <string notr="true">Language</string>
               </property>
@@ -381,6 +369,29 @@
        <item row="2" column="0">
         <layout class="QHBoxLayout" name="style_h_2">
          <item>
+          <widget class="QGroupBox" name="groupBox_3">
+           <property name="title">
+            <string/>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_11">
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Font</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="font">
+              <property name="editable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="traffic_statistics_box">
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
@@ -422,26 +433,6 @@
                 <string>Off</string>
                </property>
               </item>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="connection_statistics_box">
-           <layout class="QHBoxLayout" name="horizontalLayout_15">
-            <item>
-             <widget class="QLabel" name="label_9">
-              <property name="text">
-               <string>Connection statistics</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="connection_statistics">
-              <property name="text">
-               <string>Enable</string>
-              </property>
              </widget>
             </item>
            </layout>
@@ -814,8 +805,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>192</width>
-            <height>59</height>
+            <width>686</width>
+            <height>380</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_6">

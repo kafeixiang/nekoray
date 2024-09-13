@@ -10,6 +10,7 @@
 
 #include <QStyleFactory>
 #include <QFileDialog>
+#include <QFontDatabase>
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QTimer>
@@ -97,8 +98,6 @@ DialogBasicSettings::DialogBasicSettings(QWidget *parent)
 #endif
 
     // Style
-    ui->connection_statistics_box->setDisabled(true);
-    //
     D_LOAD_BOOL(check_include_pre)
     D_LOAD_BOOL(start_minimal)
     D_LOAD_INT(max_log_line)
@@ -120,6 +119,17 @@ DialogBasicSettings::DialogBasicSettings(QWidget *parent)
     ui->language->setCurrentIndex(NekoGui::dataStore->language);
     connect(ui->language, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [=](int index) {
         CACHE.needRestart = true;
+    });
+    //
+    ui->font->addItems(QFontDatabase::families());
+    ui->font->setCurrentText(QApplication::font().family());
+    connect(ui->font, static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::currentTextChanged), this, [=](const QString &fontName) {
+        QFont currentFont = QApplication::font();
+        currentFont.setFamily(fontName);
+        QApplication::setFont(currentFont);
+        foreach (QWidget *widget, QApplication::allWidgets()) {
+            widget->setFont(currentFont);
+        }
     });
     //
     int built_in_len = ui->theme->count();
@@ -258,6 +268,7 @@ void DialogBasicSettings::accept() {
     // Style
 
     NekoGui::dataStore->language = ui->language->currentIndex();
+    NekoGui::dataStore->font = ui->font->currentText();
     D_SAVE_BOOL(check_include_pre)
     D_SAVE_BOOL(start_minimal)
     D_SAVE_INT(max_log_line)
