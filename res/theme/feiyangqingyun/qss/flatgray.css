@@ -102,7 +102,7 @@ border-radius:3px;
 .QGroupBox{
 border:1px solid #B6B6B6;
 border-radius:5px;
-margin-top:3ex;
+margin-top:9px;
 }
 
 .QGroupBox::title{
@@ -116,7 +116,6 @@ border-style:none;
 border:1px solid #B6B6B6;
 color:#57595B;
 padding:5px;
-min-height:15px;
 border-radius:5px;
 background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 #E4E4E4,stop:1 #E4E4E4);
 }
@@ -550,11 +549,22 @@ border:0px solid #E4E4E4;
 border-radius:3px;
 }
 
-QToolBox::tab,QGroupBox#gboxDevicePanel,QGroupBox#gboxDeviceTitle,QFrame#gboxDevicePanel,QFrame#gboxDeviceTitle{
+QToolBox::tab,QWidget[form="panel"]{
 padding:3px;
 border-radius:5px;
 color:#57595B;
 background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 #E4E4E4,stop:1 #E4E4E4);
+}
+
+QWidget[flag="paneltitle"]{
+border-bottom-left-radius:0px;
+border-bottom-right-radius:0px;
+}
+
+QWidget[flag="panelcontrol"]{
+border-top-width:0px;
+border-top-left-radius:0px;
+border-top-right-radius:0px;
 }
 
 QToolTip{
@@ -667,6 +677,10 @@ margin:2px;
 background:#FFFFFF;
 border-color:#E4E4E4;
 color:#B6B6B6;
+}
+
+QLabel:disabled{
+background:none;
 }
 
 /*TextColor:#57595B*/
