@@ -66,6 +66,7 @@ void MainWindow::speedtest_current_group(int mode) {
             auto t = speedtesting_threads.takeFirst();
             if (t != nullptr) t->exit();
         }
+        speedtesting_threads.clear();
         speedtesting = false;
         return;
     }
@@ -112,31 +113,33 @@ void MainWindow::speedtest_current_group(int mode) {
     }
     speedtesting = true;
 
-    runOnNewThread([this, profiles, mode, full_test_flags]() {
+    runOnNewThread([this, profiles, mode, full_test_flags] {
         QMutex lock_write;
         QMutex lock_return;
-        int threadN = NekoGui::dataStore->test_concurrent;
-        int threadN_finished = 0;
+        int threadN = qMin(NekoGui::dataStore->test_concurrent, profiles.count());
         auto profiles_test = profiles; // copy
 
         // Threads
         lock_return.lock();
-        for (int i = 0; i < threadN; i++) {
+        for (int i = 0; i < threadN; ++i) {
             runOnNewThread([&] {
+                lock_write.lock();
                 speedtesting_threads << QObject::thread();
+                lock_write.unlock();
 
                 forever {
                     //
                     lock_write.lock();
                     if (profiles_test.isEmpty()) {
-                        threadN_finished++;
-                        if (threadN == threadN_finished) {
+                        speedtesting_threads.removeOne(QObject::thread());
+                        if (speedtesting_threads.isEmpty()) {
                             // quit control thread
+                            lock_write.unlock();
                             lock_return.unlock();
+                            return;
                         }
-                        lock_write.unlock();
                         // quit of this thread
-                        speedtesting_threads.removeAll(QObject::thread());
+                        lock_write.unlock();
                         return;
                     }
                     auto profile = profiles_test.takeFirst();
@@ -206,7 +209,10 @@ void MainWindow::speedtest_current_group(int mode) {
                         extSem.acquire();
                     }
                     //
-                    if (!rpcOK) return;
+                    if (!rpcOK) {
+                        MW_show_log(tr("RPC call failed"));
+                        return;
+                    }
 
                     if (result.error().empty()) {
                         profile->latency = result.ms();
@@ -228,7 +234,6 @@ void MainWindow::speedtest_current_group(int mode) {
                 }
             });
         }
-
         // Control
         lock_return.lock();
         lock_return.unlock();
