@@ -464,9 +464,6 @@ namespace NekoGui {
         // custom inbound
         if (!status->forTest) QJSONARRAY_ADD(status->inbounds, QString2QJsonObject(dataStore->custom_inbound)["inbounds"].toArray())
 
-        status->result->coreConfig.insert("inbounds", status->inbounds);
-        status->result->coreConfig.insert("outbounds", status->outbounds);
-
         // user rule
         if (!status->forTest) {
             DOMAIN_USER_RULE
@@ -624,7 +621,6 @@ namespace NekoGui {
         if (dataStore->routing->use_dns_object && !status->forTest) {
             dns = QString2QJsonObject(dataStore->routing->dns_object);
         }
-        status->result->coreConfig.insert("dns", dns);
 
         // Routing
 
@@ -715,7 +711,12 @@ namespace NekoGui {
                     {"geosite", QJsonObject{{"path", geosite}}}};
                 if (dataStore->spmode_vpn) routeObj["auto_detect_interface"] = true;
             } else {
-                routeObj = custom_routeObj;
+                auto outboundsArray = custom_routeObj["outbounds"].toArray();
+                if (!outboundsArray.isEmpty())
+                    for (const auto& outbound : outboundsArray) {
+                        status->outbounds.append(outbound);
+                    }
+                routeObj = custom_routeObj["route"].toObject();
             }
         }
         if (status->forExport) {
@@ -723,7 +724,6 @@ namespace NekoGui {
             routeObj.remove("geosite");
             routeObj.remove("auto_detect_interface");
         }
-        status->result->coreConfig.insert("route", routeObj);
 
         // experimental
         QJsonObject experimentalObj;
@@ -737,6 +737,10 @@ namespace NekoGui {
             experimentalObj["clash_api"] = clash_api;
         }
 
+        status->result->coreConfig.insert("dns", dns);
+        status->result->coreConfig.insert("inbounds", status->inbounds);
+        status->result->coreConfig.insert("outbounds", status->outbounds);
+        status->result->coreConfig.insert("route", routeObj);
         if (!experimentalObj.isEmpty()) status->result->coreConfig.insert("experimental", experimentalObj);
     }
 
