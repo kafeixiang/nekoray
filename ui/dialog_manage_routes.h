@@ -32,13 +32,21 @@ private:
 
     int currentRouteProfileID = -1;
 
+    void set_dns_hijack_enability(bool enable) const;
+
+    static bool validate_dns_rules(const QString &rawString);
+
     QShortcut* deleteShortcut;
+
+    AutoCompleteTextEdit* rule_editor;
 public slots:
     void accept() override;
 
     void updateCurrentRouteProfile(int idx);
 
     void on_new_route_clicked();
+
+    void on_clone_route_clicked();
 
     void on_edit_route_clicked();
 
