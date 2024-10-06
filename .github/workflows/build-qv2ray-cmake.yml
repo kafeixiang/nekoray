@@ -72,16 +72,16 @@ jobs:
         include:
           - platform: windows-latest
             arch: amd64
-            qt_version: "6.7.2"
+            qt_version: "6.8.0"
           - platform: ubuntu-latest
             arch: amd64
-            qt_version: "6.7.2"
+            qt_version: "6.8.0"
           - platform: macos-13
             arch: amd64
-            qt_version: "6.7.2"
+            qt_version: "6.8.0"
           - platform: macos-14
             arch: arm64
-            qt_version: "6.7.2"
+            qt_version: "6.8.0"
       fail-fast: false
     runs-on: ${{ matrix.platform }}
     env:
@@ -103,7 +103,7 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: ${{ matrix.qt_version }}
-          setup-python: true
+          arch: ${{ matrix.platform == 'windows-latest' && 'win64_msvc2022_64' || '' }}
           cache: true
           cache-key-prefix: QtCache-${{ matrix.platform }}-${{ matrix.arch }}
       # ========================================================================================================= 编译与 Qt 无关的依赖
