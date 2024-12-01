@@ -22,7 +22,7 @@ rmdir $DEPLOYMENT/public_res
 
 #### deploy qt & DLL runtime ####
 pushd $DEST
-windeployqt nekoray.exe --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw --verbose 2
+windeployqt nekoray.exe --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw --verbose 2 -force-openssl
 popd
 
 rm -rf $DEST/dxcompiler.dll $DEST/dxil.dll
