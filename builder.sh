@@ -32,7 +32,7 @@ clone_or_update_repo() {
 }
 
 # Array to store repository URLs
-repos=("nekoray=https://github.com/kafeixiang/nekoray.git"
+repos=("nekoray=https://github.com/kafeixiang/nekoray-t.git"
        "v2ray-core=https://github.com/MatsuriDayo/v2ray-core.git")
 
 # Clone or update repositories using the function
