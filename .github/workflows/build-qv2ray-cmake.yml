@@ -13,26 +13,8 @@ on:
         description: "artifact-pack: If want ignore"
         required: false
 jobs:
-  check_tag:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Check latest tag
-        id: check_tag
-        if: github.event_name != 'push'
-        run: |
-          tag1=$(curl -s https://api.github.com/repos/kafeixiang/nekoray-t/tags | jq -r '.[0].name')
-          tag2=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/tags | jq -r '.[0].name')
-          echo "Latest tag on kafeixiang/nekoray-t: $tag1"
-          echo "Latest tag on this repository: $tag2"
-          if [[ "$tag1" == "$tag2" ]]; then
-            echo "Latest tags match! Aborting workflow."
-            exit 1
-          fi
-          
   build:
     runs-on: macos-13
-    needs: check_tag
 
     steps:
       - uses: actions/checkout@v2
@@ -105,37 +87,18 @@ jobs:
           name: nekoray_arm64
           path: ./
 
-      - name: Check latest tag
-        id: check_tag
-        run: |
-          latest_tag=$(git ls-remote --tags --sort=-v:refname https://github.com/kafeixiang/nekoray.git | head -n1 | awk '{print $2}' | sed 's/refs\/tags\///')
-          echo "Latest tag is ${latest_tag}"
-          echo "latest_tag=${latest_tag}" >> $GITHUB_ENV
-      - name: Check if release already exists
-        id: check_release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          releases=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ env.latest_tag }})
-          if [[ -n $releases && $releases != *"Not Found"* ]]; then
-            echo "Release ${{env.latest_tag}} already exists, deleting..."
-            release_id=$(echo $releases | jq -r .id)
-            curl -X DELETE -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/releases/$release_id
-            curl -X DELETE -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/git/refs/tags/${{ env.latest_tag }}" || true
-            sleep 10
-          fi
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.latest_tag }}
-          release_name: ${{ env.latest_tag }} macOS (Intel + Apple)
-          body: Built on the original repository. ${{ env.latest_tag }}
+          tag_name: ${{ github.event.inputs.tag }}
+          release_name: ${{ github.event.inputs.tag }} macOS (Intel + Apple)
+          body: Built on the original repository. ${{ github.event.inputs.tag }}
           draft: false
           published: true
-          prerelease: ${{ contains(env.latest_tag, 'pre') }}
+          prerelease: ${{ contains(github.event.inputs.tag, 'pre') }}
           
       - name: Upload Release Asset for amd64
         id: upload_release_asset_amd64
