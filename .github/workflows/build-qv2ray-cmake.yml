@@ -12,11 +12,12 @@ on:
       artifact-pack:
         description: 'artifact-pack: If want ignore'
         required: false
+
 jobs:
   build-go:
     strategy:
       matrix:
-        cross_os: [ windows, linux ]
+        cross_os: [ windows, linux, macos ]
         cross_arch: [ amd64 ]
         include:
           - cross_os: public_res
@@ -55,6 +56,7 @@ jobs:
         with:
           name: NekoRay-${{ github.sha }}-Common-${{ matrix.cross_os }}-${{ matrix.cross_arch }}
           path: artifacts.tgz
+
   build-cpp:
     strategy:
       matrix:
@@ -65,6 +67,9 @@ jobs:
           - platform: ubuntu-20.04
             arch: x64
             qt_version: "5.12"
+          - platform: macos-12
+            arch: x64
+            qt_version: "5.15.2"
       fail-fast: false
 
     runs-on: ${{ matrix.platform }}
@@ -79,17 +84,32 @@ jobs:
         if: matrix.platform == 'windows-2022'
         uses: ilammy/msvc-dev-cmd@v1
         with:
-          # 14.1 is for vs2017, 14.2 is vs2019, following the upstream vcpkg build from Qv2ray-deps repo
           toolset: 14.2
           arch: ${{ matrix.arch }}
-      # ========================================================================================================= Qt Install
+
+      # ========== Qt Install ==========
       - name: Windows - Download Custom Qt ${{ matrix.qt_version }} SDK
         shell: bash
         if: matrix.platform == 'windows-2022'
         env:
           DL_QT_VER: ${{ matrix.qt_version }}
         run: bash ./libs/download_qtsdk_win.sh
-      # ========================================================================================================= 编译与 Qt 无关的依赖
+      - name: Linux - Install Qt ${{ matrix.qt_version }} via apt
+        shell: bash
+        if: matrix.platform == 'ubuntu-20.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zlib1g-dev fcitx-frontend-qt5 qtbase5-dev qttools5-dev libqt5svg5-dev libqt5x11extras5-dev
+      - name: macOS - Install Qt ${{ matrix.qt_version }}
+        if: matrix.platform == 'macos-12'
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{ matrix.qt_version }}
+          setup-python: false
+          cache: true
+          cache-key-prefix: QtCache-${{ matrix.platform }}-${{ matrix.arch }}
+
+      # ========== Build Dependencies ==========
       - name: Install ninja-build tool
         uses: seanmiddleditch/gha-setup-ninja@v3
       - name: Cache Download
@@ -111,7 +131,8 @@ jobs:
             -w /nekoray \
             ghcr.io/matsuridayo/debian10-qt5:20230131 \
             bash -c "./libs/build_deps_all.sh"
-      # ========================================================================================================= Generate MakeFile and Build
+
+      # ========== Generate MakeFile and Build ==========
       - name: Windows - Generate MakeFile and Build
         shell: bash
         if: matrix.platform == 'windows-2022'
@@ -135,8 +156,19 @@ jobs:
             -v $PWD:/nekoray \
             -w /nekoray \
             ghcr.io/matsuridayo/debian10-qt5:20230131 \
-            bash -c "mkdir build && pushd build && cmake -GNinja -DCMAKE_BUILD_TYPE=Release .. && ninja && popd &&./libs/deploy_linux64.sh"
-      # ========================================================================================================= Deployments
+            bash -c "mkdir build && pushd build && cmake -GNinja -DCMAKE_BUILD_TYPE=Release .. && ninja && popd && ./libs/deploy_linux64.sh"
+      - name: macOS - Generate MakeFile and Build
+        shell: bash
+        if: matrix.platform == 'macos-12'
+        run: |
+          mkdir build
+          cd build
+          cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DNKR_PACKAGE_MACOS=1 ..
+          ninja
+          cd ..
+          ./libs/deploy_macos.sh
+
+      # ========== Deployments ==========
       - name: Tar files
         shell: bash
         run: tar czvf artifacts.tgz ./deployment
@@ -145,6 +177,7 @@ jobs:
         with:
           name: NekoRay-${{ github.sha }}-${{ matrix.platform }}-${{ matrix.arch }}-Qt${{ matrix.qt_version }}
           path: artifacts.tgz
+
   publish:
     name: Pack & Publish Release
     if: github.event.inputs.artifact-pack != 'y'
@@ -163,45 +196,29 @@ jobs:
         run: |
           curl -Lo - https://github.com/tcnksm/ghr/releases/download/v0.13.0/ghr_v0.13.0_linux_amd64.tar.gz | tar xzv
           mv ghr*linux_amd64/ghr .
-          ####
           source libs/env_deploy.sh
           find . -name artifacts.tgz | xargs -n1 tar xvzf
           cd deployment
           cp -r public_res/* linux64
           cp -r public_res/* windows64
+          cp -r public_res/* macos-amd64
           rm -rf public_res *.pdb
-          ####
           mv linux64 nekoray
           zip -r $version_standalone-linux64.zip nekoray
           rm -rf nekoray
-          ####
           mv windows64 nekoray
           zip -r $version_standalone-windows64.zip nekoray
           rm -rf nekoray
-      - name: Pack Debian
-        run: |
-          source libs/env_deploy.sh
-          find . -name artifacts.tgz | xargs -n1 tar xvzf
-          cd deployment
-          cp -r public_res/* linux64
-          ####
-          bash ../libs/package_debian.sh ${{ github.event.inputs.tag }}
-          mv nekoray.deb $version_standalone-debian-x64.deb
-          sudo rm -rf nekoray
-      - name: Pack AppImage
-        run: |
-          source libs/env_deploy.sh
-          find . -name artifacts.tgz | xargs -n1 tar xvzf
-          cd deployment
-          cp -r public_res/* linux64
-          ####
-          bash ../libs/package_appimage.sh
-          mv nekoray-x86_64.AppImage $version_standalone-linux-x64.AppImage
+          if [ -d "macos-amd64" ]; then
+            mv macos-amd64/nekoray.dmg $version_standalone-macos-amd64.dmg
+            rm -rf macos-amd64
+          fi
       - name: Clean Up
         run: |
           cd deployment
           rm -rf linux64
           rm -rf windows64
+          rm -rf macos-amd64
           rm -rf public_res
           rm -rf *.pdb
       - name: Uploading Artifact
